@@ -1,1 +1,611 @@
-My Day 01
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day 01 — Git & GitHub | 30 Days of DevOps</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Syne:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0D1117;
+  --bg2: #161B22;
+  --bg3: #21262D;
+  --border: #30363D;
+  --border2: #21262D;
+  --text: #E6EDF3;
+  --text2: #C9D1D9;
+  --muted: #8B949E;
+  --dim: #484F58;
+  --green: #3FB950;
+  --green-bg: #0D1F12;
+  --green-border: #238636;
+  --blue: #58A6FF;
+  --blue-bg: #0C2340;
+  --blue-border: #1F6FEB;
+  --amber: #D29922;
+  --amber-bg: #1C1700;
+  --amber-border: #9E6A03;
+  --purple: #BC8CFF;
+  --purple-bg: #1A1040;
+  --purple-border: #6E40C9;
+  --red: #FF7B72;
+  --red-bg: #1C0A09;
+  --red-border: #8B2020;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Syne', sans-serif;
+  background: #080C10;
+  color: var(--text);
+  min-height: 100vh;
+  padding: 40px 20px;
+}
+.page-wrap { max-width: 720px; margin: 0 auto; }
+
+/* TOP BADGE */
+.challenge-banner {
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--bg2); border: 0.5px solid var(--border);
+  border-radius: 12px; padding: 12px 20px; margin-bottom: 20px;
+}
+.cb-left { display: flex; align-items: center; gap: 10px; }
+.cb-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 8px var(--green); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+.cb-label { font-size: 12px; font-weight: 500; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
+.cb-label span { color: var(--green); }
+.progress-pills { display: flex; gap: 4px; }
+.pp { width: 20px; height: 4px; border-radius: 2px; background: var(--border); }
+.pp.done { background: var(--green); }
+
+/* HERO */
+.hero {
+  background: var(--bg2); border: 0.5px solid var(--border);
+  border-radius: 16px; padding: 32px; margin-bottom: 16px;
+  position: relative; overflow: hidden;
+}
+.hero::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--green), var(--blue), var(--purple));
+}
+.hero-eyebrow { font-size: 11px; font-weight: 500; color: var(--dim); font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 12px; }
+.hero-title { font-size: 42px; font-weight: 700; line-height: 1.1; margin-bottom: 10px; }
+.hero-title .git { color: var(--green); }
+.hero-title .amp { color: var(--muted); font-weight: 400; }
+.hero-title .github { color: var(--blue); }
+.hero-sub { font-size: 14px; color: var(--muted); line-height: 1.7; max-width: 560px; }
+.hero-meta { display: flex; gap: 16px; margin-top: 20px; padding-top: 20px; border-top: 0.5px solid var(--border); }
+.hm { text-align: center; }
+.hm-num { font-size: 22px; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+.hm-lbl { font-size: 10px; color: var(--muted); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.08em; }
+
+/* SECTION */
+.section { margin-bottom: 16px; }
+.section-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 14px 20px; background: var(--bg2);
+  border: 0.5px solid var(--border); border-radius: 12px 12px 0 0;
+  border-bottom: 0.5px solid var(--bg3);
+}
+.sh-num { font-size: 10px; font-family: 'JetBrains Mono', monospace; color: var(--dim); }
+.sh-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.sh-label { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.1em; font-family: 'JetBrains Mono', monospace; }
+.section-body {
+  background: var(--bg2); border: 0.5px solid var(--border);
+  border-top: none; border-radius: 0 0 12px 12px; padding: 20px;
+}
+
+/* THEORY CARDS */
+.tc { background: var(--bg); border: 0.5px solid var(--border); border-radius: 10px; padding: 16px 18px; margin-bottom: 10px; }
+.tc:last-child { margin-bottom: 0; }
+.tc-title { font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+.tc-title::before { content: ''; width: 3px; height: 14px; border-radius: 2px; flex-shrink: 0; }
+.tc-body { font-size: 13px; color: var(--muted); line-height: 1.75; }
+.tc-body b { color: var(--text2); font-weight: 500; }
+.analogy { background: var(--green-bg); border: 0.5px solid var(--green-border); border-radius: 8px; padding: 10px 14px; margin-top: 10px; font-size: 12px; color: #4AC261; line-height: 1.6; }
+.analogy::before { content: '💡 '; }
+.note { background: var(--blue-bg); border-left: 2px solid var(--blue); border-radius: 0 8px 8px 0; padding: 10px 14px; font-size: 12px; color: var(--muted); line-height: 1.6; margin-top: 10px; }
+.note b { color: var(--blue); font-weight: 500; }
+.warn { background: var(--amber-bg); border-left: 2px solid var(--amber); border-radius: 0 8px 8px 0; padding: 10px 14px; font-size: 12px; color: var(--muted); line-height: 1.6; margin-top: 10px; }
+.warn b { color: var(--amber); font-weight: 500; }
+.danger { background: var(--red-bg); border-left: 2px solid var(--red); border-radius: 0 8px 8px 0; padding: 10px 14px; font-size: 12px; color: var(--muted); line-height: 1.6; margin-top: 10px; }
+.danger b { color: var(--red); font-weight: 500; }
+.tip { background: var(--green-bg); border-left: 2px solid var(--green); border-radius: 0 8px 8px 0; padding: 10px 14px; font-size: 12px; color: var(--muted); line-height: 1.6; margin-top: 10px; }
+.tip b { color: var(--green); font-weight: 500; }
+
+/* TWO COL */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+@media(max-width:500px){.two-col{grid-template-columns:1fr}}
+
+/* DIFF CARDS */
+.diff-git { background: var(--blue-bg); border: 0.5px solid var(--blue-border); border-radius: 10px; padding: 14px 16px; }
+.diff-github { background: var(--green-bg); border: 0.5px solid var(--green-border); border-radius: 10px; padding: 14px 16px; }
+.diff-title { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+.diff-body { font-size: 12px; color: var(--muted); line-height: 1.7; }
+.diff-body b { color: var(--text2); font-weight: 500; }
+
+/* FLOW DIAGRAM */
+.flow-wrap { background: #010409; border: 0.5px solid var(--border); border-radius: 10px; padding: 16px; margin: 10px 0; overflow-x: auto; }
+.flow-label { font-size: 10px; color: var(--dim); font-family: 'JetBrains Mono', monospace; margin-bottom: 12px; }
+
+/* CMD BLOCKS */
+.cmd-block { background: #010409; border: 0.5px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 10px; }
+.cmd-block:last-child { margin-bottom: 0; }
+.cb-hdr { background: var(--bg2); padding: 8px 16px; font-size: 10px; color: var(--dim); font-family: 'JetBrains Mono', monospace; border-bottom: 0.5px solid var(--border); display: flex; align-items: center; gap: 6px; }
+.cb-hdr-dot { width: 6px; height: 6px; border-radius: 50%; }
+.cb-body { padding: 14px 16px; }
+.cr { display: flex; gap: 10px; padding: 3px 0; font-family: 'JetBrains Mono', monospace; font-size: 12.5px; line-height: 1.6; align-items: baseline; flex-wrap: wrap; }
+.pmt { color: var(--green); flex-shrink: 0; }
+.kw { color: #FF7B72; }
+.sub { color: #FFA657; }
+.val { color: #A5D6FF; }
+.str { color: #79C0FF; }
+.cmt { color: var(--dim); font-size: 11px; }
+.gi-line { color: var(--green); }
+
+/* BRANCH VIZ */
+.branch-svg { background: #010409; border: 0.5px solid var(--border); border-radius: 10px; padding: 16px; margin: 10px 0; }
+
+/* MERGE CARDS */
+.merge-fast { background: var(--green-bg); border: 0.5px solid var(--green-border); border-radius: 10px; padding: 14px 16px; }
+.merge-three { background: var(--amber-bg); border: 0.5px solid var(--amber-border); border-radius: 10px; padding: 14px 16px; }
+.m-title { font-size: 13px; font-weight: 500; margin-bottom: 6px; }
+.m-body { font-size: 12px; color: var(--muted); line-height: 1.65; }
+.m-body b { font-weight: 500; }
+
+/* CHEATSHEET */
+.cheat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+@media(max-width:480px){.cheat-grid{grid-template-columns:1fr}}
+.ci { background: var(--bg); border: 0.5px solid var(--border); border-radius: 8px; padding: 9px 12px; display: flex; justify-content: space-between; align-items: center; gap: 8px; transition: border-color 0.2s; }
+.ci:hover { border-color: var(--blue-border); }
+.ci-cmd { font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: var(--blue); }
+.ci-desc { font-size: 10px; color: var(--dim); text-align: right; }
+
+/* KEY INSIGHTS */
+.insight { background: var(--bg); border: 0.5px solid var(--border); border-radius: 10px; padding: 12px 16px; margin-bottom: 8px; font-size: 13px; color: var(--muted); line-height: 1.65; display: flex; gap: 12px; align-items: flex-start; }
+.insight:last-child { margin-bottom: 0; }
+.i-bar { width: 3px; min-height: 36px; border-radius: 2px; flex-shrink: 0; margin-top: 2px; }
+.insight b { color: var(--text2); font-weight: 500; }
+
+/* TAGS */
+.tags-wrap { display: flex; flex-wrap: wrap; gap: 7px; padding: 18px 0 0; border-top: 0.5px solid var(--border2); margin-top: 16px; }
+.tag { font-size: 11px; padding: 4px 12px; border-radius: 999px; border: 0.5px solid; font-family: 'JetBrains Mono', monospace; font-weight: 500; }
+.t-g { color: var(--green); border-color: var(--green-border); background: var(--green-bg); }
+.t-b { color: var(--blue); border-color: var(--blue-border); background: var(--blue-bg); }
+.t-a { color: var(--amber); border-color: var(--amber-border); background: var(--amber-bg); }
+.t-p { color: var(--purple); border-color: var(--purple-border); background: var(--purple-bg); }
+
+/* FOOTER */
+.footer { text-align: center; padding: 28px 0 0; font-size: 11px; color: var(--dim); font-family: 'JetBrains Mono', monospace; }
+.footer span { color: var(--green); }
+</style>
+</head>
+<body>
+<div class="page-wrap">
+
+  <!-- BANNER -->
+  <div class="challenge-banner">
+    <div class="cb-left">
+      <div class="cb-dot"></div>
+      <span class="cb-label">30 Days of DevOps — <span>Day 01 Complete</span></span>
+    </div>
+    <div class="progress-pills">
+      <div class="pp done"></div>
+      <div class="pp"></div><div class="pp"></div><div class="pp"></div><div class="pp"></div>
+      <div class="pp"></div><div class="pp"></div><div class="pp"></div><div class="pp"></div><div class="pp"></div>
+    </div>
+  </div>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-eyebrow">day_01 / git-and-github.md</div>
+    <div class="hero-title">
+      <span class="git">Git</span> <span class="amp">&</span> <span class="github">GitHub</span>
+    </div>
+    <div class="hero-sub">Complete guide — version control from zero to remote workflow. Everything covered in one place, no external reference needed.</div>
+    <div class="hero-meta">
+      <div class="hm"><div class="hm-num" style="color:var(--green)">8</div><div class="hm-lbl">Topics</div></div>
+      <div class="hm"><div class="hm-num" style="color:var(--blue)">30+</div><div class="hm-lbl">Commands</div></div>
+      <div class="hm"><div class="hm-num" style="color:var(--amber)">2</div><div class="hm-lbl">Merge types</div></div>
+      <div class="hm"><div class="hm-num" style="color:var(--purple)">6</div><div class="hm-lbl">Diagrams</div></div>
+      <div class="hm"><div class="hm-num" style="color:var(--green)">1</div><div class="hm-lbl">Day done ✓</div></div>
+    </div>
+  </div>
+
+  <!-- SECTION 1 -->
+  <div class="section">
+    <div class="section-header">
+      <span class="sh-num">01</span>
+      <div class="sh-dot" style="background:var(--green)"></div>
+      <span class="sh-label" style="color:var(--green)">What is Version Control?</span>
+    </div>
+    <div class="section-body">
+      <div class="tc">
+        <div class="tc-title" style="color:var(--text)"><span style="background:var(--green);width:3px;height:14px;border-radius:2px;display:inline-block;margin-right:8px;flex-shrink:0"></span>The problem it solves</div>
+        <div class="tc-body">Imagine writing code, making changes, something breaks — and you can't remember what you changed. <b>Version control</b> records every change you make to your files over time. You can go back to any previous state — like an undo button that never expires, even days or months later.</div>
+        <div class="analogy">Video game save point analogy — you can keep playing, make risky moves, and always reload from the last save. Git is your save-point system for code.</div>
+      </div>
+      <div class="tc">
+        <div class="tc-title" style="color:var(--text)"><span style="background:var(--amber);width:3px;height:14px;border-radius:2px;display:inline-block;margin-right:8px"></span>Before Git — the dark ages</div>
+        <div class="tc-body">Before Git, developers used tools like <b>SCCS</b>, <b>CVS</b>, and <b>SVN (Subversion)</b>. They were expensive, slow, and painful to use in teams. Git was created in <b>2005 by Linus Torvalds</b> (creator of Linux) to replace all of these — free, fast, and distributed.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 2 -->
+  <div class="section">
+    <div class="section-header">
+      <span class="sh-num">02</span>
+      <div class="sh-dot" style="background:var(--blue)"></div>
+      <span class="sh-label" style="color:var(--blue)">Git vs GitHub — They're Different!</span>
+    </div>
+    <div class="section-body">
+      <div class="two-col">
+        <div class="diff-git">
+          <div class="diff-title" style="color:var(--blue)">Git</div>
+          <div class="diff-body">Software installed on <b>your own computer</b>. Tracks file changes locally. Works completely offline. Free and open-source. Available for Windows, macOS, Linux.</div>
+        </div>
+        <div class="diff-github">
+          <div class="diff-title" style="color:var(--green)">GitHub</div>
+          <div class="diff-body">A <b>website and cloud platform</b> to store your Git repos online. Used for backup, sharing code, and team collaboration. GitLab, Bitbucket, Azure Repos are alternatives.</div>
+        </div>
+      </div>
+      <div class="note" style="margin-top:12px"><b>Golden rule:</b> Git can exist without GitHub. GitHub cannot exist without Git. Git is the engine — GitHub is the cloud garage where you park and share your work.</div>
+    </div>
+  </div>
+
+  <!-- SECTION 3 -->
+  <div class="section">
+    <div class="section-header">
+      <span class="sh-num">03</span>
+      <div class="sh-dot" style="background:var(--amber)"></div>
+      <span class="sh-label" style="color:var(--amber)">Core Concepts</span>
+    </div>
+    <div class="section-body">
+      <div class="tc">
+        <div class="tc-title" style="color:var(--text)"><span style="background:var(--amber);width:3px;height:14px;border-radius:2px;display:inline-block;margin-right:8px"></span>Repository (Repo)</div>
+        <div class="tc-body">Your project folder that Git tracks. Looks like a normal folder, but contains a hidden <b>.git</b> folder storing the entire history. Created with <b>git init</b>. Not all folders are repos — only the ones you initialize.</div>
+      </div>
+      <div class="tc">
+        <div class="tc-title" style="color:var(--text)"><span style="background:var(--green);width:3px;height:14px;border-radius:2px;display:inline-block;margin-right:8px"></span>Commit — the snapshot</div>
+        <div class="tc-body">A commit is a permanent save point. Each commit has a unique <b>hash ID</b> (like a3f8c2d), your name, timestamp, and a message. You can jump to any commit at any time. Think of your project history as an album of photos — each commit is one photo capturing the exact state of your code at that moment.</div>
+        <div class="analogy">Commits are like photos in an album. Each photo captures exactly what your code looked like at that moment. Your album (repo) holds all photos in order, forever.</div>
+      </div>
+      <div class="tc">
+        <div class="tc-title" style="color:var(--text)"><span style="background:var(--blue);width:3px;height:14px;border-radius:2px;display:inline-block;margin-right:8px"></span>Staging Area — the buffer zone</div>
+        <div class="tc-body">Before committing, files go to the <b>staging area</b> (also called the index). This lets you choose exactly which changes to include — you might edit 5 files but stage only 2 for this commit. Gives you precise control over what gets saved.</div>
+        <div class="analogy">Like packing a box before shipping. You gather items on a table (staging), review what you want, then seal and send the box (commit).</div>
+      </div>
+
+      <!-- Git workflow diagram -->
+      <div class="flow-wrap">
+        <div class="flow-label">git workflow — working dir → staging → local repo → github</div>
+        <svg width="100%" viewBox="0 0 660 80" style="display:block;min-width:500px">
+          <defs>
+            <marker id="aw" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+              <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </marker>
+          </defs>
+          <rect x="8" y="16" width="136" height="48" rx="8" fill="#1C1700" stroke="#9E6A03" stroke-width="0.5"/>
+          <text x="76" y="36" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#D29922" font-family="JetBrains Mono, monospace" font-weight="500">Working dir</text>
+          <text x="76" y="52" text-anchor="middle" dominant-baseline="central" font-size="10" fill="#6E7681" font-family="Syne, sans-serif">your edits</text>
+          <line x1="144" y1="40" x2="168" y2="40" stroke="#9E6A03" stroke-width="1.2" marker-end="url(#aw)"/>
+          <text x="156" y="32" text-anchor="middle" font-size="9" fill="#6E7681" font-family="JetBrains Mono, monospace">git add</text>
+          <rect x="170" y="16" width="136" height="48" rx="8" fill="#131C2E" stroke="#1F6FEB" stroke-width="0.5"/>
+          <text x="238" y="36" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#58A6FF" font-family="JetBrains Mono, monospace" font-weight="500">Staging area</text>
+          <text x="238" y="52" text-anchor="middle" dominant-baseline="central" font-size="10" fill="#6E7681" font-family="Syne, sans-serif">ready to commit</text>
+          <line x1="306" y1="40" x2="330" y2="40" stroke="#1F6FEB" stroke-width="1.2" marker-end="url(#aw)"/>
+          <text x="318" y="32" text-anchor="middle" font-size="9" fill="#6E7681" font-family="JetBrains Mono, monospace">git commit</text>
+          <rect x="332" y="16" width="136" height="48" rx="8" fill="#0D1F12" stroke="#238636" stroke-width="0.5"/>
+          <text x="400" y="36" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#3FB950" font-family="JetBrains Mono, monospace" font-weight="500">Local repo</text>
+          <text x="400" y="52" text-anchor="middle" dominant-baseline="central" font-size="10" fill="#6E7681" font-family="Syne, sans-serif">saved history</text>
+          <line x1="468" y1="40" x2="492" y2="40" stroke="#238636" stroke-width="1.2" marker-end="url(#aw)"/>
+          <text x="480" y="32" text-anchor="middle" font-size="9" fill="#6E7681" font-family="JetBrains Mono, monospace">git push</text>
+          <rect x="494" y="16" width="156" height="48" rx="8" fill="#1A1040" stroke="#6E40C9" stroke-width="0.5"/>
+          <text x="572" y="36" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#BC8CFF" font-family="JetBrains Mono, monospace" font-weight="500">GitHub (remote)</text>
+          <text x="572" y="52" text-anchor="middle" dominant-baseline="central" font-size="10" fill="#6E7681" font-family="Syne, sans-serif">cloud backup</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 4 -->
+  <div class="section">
+    <div class="section-header">
+      <span class="sh-num">04</span>
+      <div class="sh-dot" style="background:var(--green)"></div>
+      <span class="sh-label" style="color:var(--green)">Setup & Essential Commands</span>
+    </div>
+    <div class="section-body">
+      <div class="cmd-block">
+        <div class="cb-hdr"><div class="cb-hdr-dot" style="background:#FF5F57"></div><div class="cb-hdr-dot" style="background:#FFBD2E"></div><div class="cb-hdr-dot" style="background:#28CA41"></div>&nbsp;&nbsp;first-time setup</div>
+        <div class="cb-body">
+          <div class="cr"><span class="pmt">$</span><span><span class="kw">git</span> <span class="sub">config</span> <span class="val">--global</span> <span class="str">user.name "Your Name"</span></span></div>
+          <div class="cr"><span class="pmt">$</span><span><span class="kw">git</span> <span class="sub">config</span> <span class="val">--global</span> <span class="str">user.email "you@example.com"</span></span></div>
+          <div class="cr"><span class="pmt">$</span><span><span class="kw">git</span> <span class="sub">config</span> <span class="val">--global</span> <span class="str">core.editor "code --wait"</span> <span class="cmt"># use VS Code</span></span></div>
+          <div class="cr"><span class="pmt">$</span><span><span class="kw">git</span> <span class="sub">config</span> <span class="val">--list</span> <span class="cmt"># verify your settings</span></span></div>
+          <div class="cr"><span class="pmt">$</span><span><span class="kw">git</span> <span class="sub">--version</span> <span class="cmt"># check git is installed</span></span></div>
+        </div>
+      </div>
+      <div class="cmd-block">
+        <div class="cb-hdr"><div class="cb-hdr-dot" style="background:var(--green)"></div>&nbsp;daily workflow</div>
+        <div class="cb-body">
+          <div class="cr"><span class="pmt">$</span><span><span class="kw">git</span> <span class="sub">init</span> <span class="cmt"># start tracking this folder as a repo</span></span></div>
+          <div class="cr"><span class="pmt">$</span><span><span class="kw">git</span> <span class="sub">status</span> <span class="cmt"># see what changed / what's staged</span></span></div>
+          <div class="cr"><span class="pmt">$</span><span><span class="kw">git</span> <span class="sub">add</span> <span class="val">.</span> <span class="cmt"># stage all changed files</span></span></div>
+          <div class="cr"><span class="pmt">$</span><span><span class="kw">git</span> <span class="sub">add</span> <span class="val">&lt;filename&gt;</span> <span class="cmt"># stage a specific file only</span></span></div>
+          <div class="cr"><span class="pmt">$</span><span><span class="kw">git</span> <span class="sub">commit</span> <span class="val">-m</span> <span class="str">"describe what you changed"</span></span></div>
+          <div class="cr"><span class="pmt">$</span><span><span class="kw">git</span> <span class="sub">log</span> <span class="cmt"># full history</span></span></div>
+          <div class="cr"><span class="pmt">$</span><span><span class="kw">git</span> <span class="sub">log</span> <span class="val">--oneline</span> <span class="cmt"># compact 1-line per commit</span></span></div>
+        </div>
+      </div>
+      <div class="cmd-block">
+        <div class="cb-hdr"><div class="cb-hdr-dot" style="background:var(--blue)"></div>&nbsp;.gitignore — files git should never track</div>
+        <div class="cb-body">
+          <div class="cr"><span class="gi-line">node_modules/</span> <span class="cmt"># heavy dependency folders</span></div>
+          <div class="cr"><span class="gi-line">.env</span> <span class="cmt"># secret keys, API tokens, passwords</span></div>
+          <div class="cr"><span class="gi-line">.vscode/</span> <span class="cmt"># editor-specific settings</span></div>
+          <div class="cr"><span class="gi-line">*.log</span> <span class="cmt"># all log files</span></div>
+          <div class="cr"><span class="gi-line">dist/</span> <span class="cmt"># build output folders</span></div>
+        </div>
+      </div>
+      <div class="tip"><b>Atomic commits:</b> One commit = one logical change. Never bundle "fix login bug + redesign header + update database" into one commit. Keep them small, focused, and descriptive. This makes history readable and rollbacks easy.</div>
+    </div>
+  </div>
+
+  <!-- SECTION 5 -->
+  <div class="section">
+    <div class="section-header">
+      <span class="sh-num">05</span>
+      <div class="sh-dot" style="background:var(--purple)"></div>
+      <span class="sh-label" style="color:var(--purple)">Branches & Merging</span>
+    </div>
+    <div class="section-body">
+      <div class="tc">
+        <div class="tc-title" style="color:var(--text)"><span style="background:var(--purple);width:3px;height:14px;border-radius:2px;display:inline-block;margin-right:8px"></span>What is a branch?</div>
+        <div class="tc-body">A branch is an <b>independent copy of your codebase</b> where you can work freely without touching the stable <b>main</b> branch. Multiple developers can work on different branches at the same time. When a feature is ready, you merge it back. The default branch was called <b>master</b> but is now called <b>main</b> by convention.</div>
+        <div class="analogy">Parallel universes analogy — each branch is a separate timeline. You can experiment in any timeline, and decide which ones to merge back into the main reality. HEAD is a pointer that always tells Git: "this is where you are right now."</div>
+      </div>
+
+      <!-- Branch diagram -->
+      <div class="branch-svg">
+        <div class="flow-label">branch diagram — feature branch created, worked on, then merged back</div>
+        <svg width="100%" viewBox="0 0 640 120" style="display:block;min-width:460px">
+          <defs>
+            <marker id="aw3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+              <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </marker>
+          </defs>
+          <!-- main line -->
+          <line x1="30" y1="80" x2="580" y2="80" stroke="#21262D" stroke-width="2"/>
+          <!-- commits on main -->
+          <circle cx="60"  cy="80" r="10" fill="#0D1F12" stroke="#238636" stroke-width="1.5"/>
+          <circle cx="160" cy="80" r="10" fill="#0D1F12" stroke="#238636" stroke-width="1.5"/>
+          <circle cx="260" cy="80" r="10" fill="#0D1F12" stroke="#238636" stroke-width="1.5"/>
+          <circle cx="490" cy="80" r="11" fill="#1A1040" stroke="#6E40C9" stroke-width="1.5"/>
+          <circle cx="580" cy="80" r="10" fill="#0D1F12" stroke="#238636" stroke-width="1.5"/>
+          <!-- feature branch line -->
+          <path d="M260 70 Q260 35 300 35 L420 35" stroke="#58A6FF" stroke-width="1.5" fill="none"/>
+          <line x1="420" y1="35" x2="478" y2="35" stroke="#58A6FF" stroke-width="1.5" marker-end="url(#aw3)"/>
+          <path d="M420 35 Q460 35 490 70" stroke="#58A6FF" stroke-width="1.5" fill="none" stroke-dasharray="5 3"/>
+          <!-- commits on feature -->
+          <circle cx="310" cy="35" r="9" fill="#0C2340" stroke="#1F6FEB" stroke-width="1.5"/>
+          <circle cx="400" cy="35" r="9" fill="#0C2340" stroke="#1F6FEB" stroke-width="1.5"/>
+          <!-- labels -->
+          <text x="60"  y="100" text-anchor="middle" font-size="9" fill="#484F58" font-family="JetBrains Mono, monospace">c1</text>
+          <text x="160" y="100" text-anchor="middle" font-size="9" fill="#484F58" font-family="JetBrains Mono, monospace">c2</text>
+          <text x="260" y="100" text-anchor="middle" font-size="9" fill="#484F58" font-family="JetBrains Mono, monospace">c3</text>
+          <text x="310" y="55"  text-anchor="middle" font-size="9" fill="#484F58" font-family="JetBrains Mono, monospace">f1</text>
+          <text x="400" y="55"  text-anchor="middle" font-size="9" fill="#484F58" font-family="JetBrains Mono, monospace">f2</text>
+          <text x="490" y="100" text-anchor="middle" font-size="9" fill="#BC8CFF" font-family="JetBrains Mono, monospace">merge</text>
+          <text x="580" y="100" text-anchor="middle" font-size="9" fill="#484F58" font-family="JetBrains Mono, monospace">c4</text>
+          <text x="60"  y="115" text-anchor="middle" font-size="9" fill="#3FB950" font-family="JetBrains Mono, monospace">main</text>
+          <text x="355" y="22"  text-anchor="middle" font-size="9" fill="#58A6FF" font-family="JetBrains Mono, monospace">feature-x branch</text>
+        </svg>
+      </div>
+
+      <div class="cmd-block">
+        <div class="cb-hdr"><div class="cb-hdr-dot" style="background:var(--purple)"></div>&nbsp;branch commands</div>
+        <div class="cb-body">
+          <div class="cr"><span class="pmt">$</span><span><span class="kw">git</span> <span class="sub">branch</span> <span class="cmt"># list all branches (* = current)</span></span></div>
+          <div class="cr"><span class="pmt">$</span><span><span class="kw">git</span> <span class="sub">branch</span> <span class="val">feature-x</span> <span class="cmt"># create new branch</span></span></div>
+          <div class="cr"><span class="pmt">$</span><span><span class="kw">git</span> <span class="sub">switch</span> <span class="val">-c</span> <span class="str">feature-x</span> <span class="cmt"># create AND switch in one step</span></span></div>
+          <div class="cr"><span class="pmt">$</span><span><span class="kw">git</span> <span class="sub">switch</span> <span class="val">main</span> <span class="cmt"># go back to main</span></span></div>
+          <div class="cr"><span class="pmt">$</span><span><span class="kw">git</span> <span class="sub">merge</span> <span class="val">feature-x</span> <span class="cmt"># merge feature into current branch</span></span></div>
+          <div class="cr"><span class="pmt">$</span><span><span class="kw">git</span> <span class="sub">branch</span> <span class="val">-d</span> <span class="str">feature-x</span> <span class="cmt"># delete branch after merge</span></span></div>
+          <div class="cr"><span class="pmt">$</span><span><span class="kw">git</span> <span class="sub">branch</span> <span class="val">-m</span> <span class="str">old-name new-name</span> <span class="cmt"># rename branch</span></span></div>
+        </div>
+      </div>
+
+      <div class="two-col" style="margin-top:10px">
+        <div class="merge-fast">
+          <div class="m-title" style="color:var(--green)">Fast-forward merge</div>
+          <div class="m-body">Happens when main has <b style="color:#4AC261">no new commits</b> since branch was created. Git just moves the pointer forward. No conflicts possible. Clean and simple.</div>
+        </div>
+        <div class="merge-three">
+          <div class="m-title" style="color:var(--amber)">3-way merge</div>
+          <div class="m-body">Happens when <b style="color:#D29922">both main and branch</b> have new commits. Git looks at 3 points — common ancestor + tips of both branches — and creates a merge commit.</div>
+        </div>
+      </div>
+      <div class="warn"><b>Merge conflicts:</b> When both branches edited the same line differently, Git can't decide. You open the file, read both versions, choose manually, then git add + git commit. VS Code has a built-in merge conflict tool — use it. It's not scary, it's just a decision.</div>
+    </div>
+  </div>
+
+  <!-- SECTION 6 -->
+  <div class="section">
+    <div class="section-header">
+      <span class="sh-num">06</span>
+      <div class="sh-dot" style="background:var(--amber)"></div>
+      <span class="sh-label" style="color:var(--amber)">Diff, Stash & Tags</span>
+    </div>
+    <div class="section-body">
+      <div class="two-col">
+        <div class="tc" style="margin-bottom:0">
+          <div class="tc-title" style="color:var(--text)"><span style="background:var(--amber);width:3px;height:14px;border-radius:2px;display:inline-block;margin-right:8px"></span>git diff</div>
+          <div class="tc-body">Shows <b>exactly what changed</b> line by line. Lines with <b style="color:#3FB950">+</b> were added. Lines with <b style="color:#FF7B72">−</b> were removed. Use before committing to review your work.</div>
+        </div>
+        <div class="tc" style="margin-bottom:0">
+          <div class="tc-title" style="color:var(--text)"><span style="background:var(--purple);width:3px;height:14px;border-radius:2px;display:inline-block;margin-right:8px"></span>git stash</div>
+          <div class="tc-body">A <b>temporary clipboard</b> for uncommitted work. Need to switch branches mid-task? Stash your work, switch, come back and pop it to restore.</div>
+        </div>
+      </div>
+      <div class="cmd-block" style="margin-top:10px">
+        <div class="cb-hdr"><div class="cb-hdr-dot" style="background:var(--amber)"></div>&nbsp;diff / stash / tags</div>
+        <div class="cb-body">
+          <div class="cr"><span class="pmt">$</span><span><span class="kw">git</span> <span class="sub">diff</span> <span class="cmt"># unstaged changes vs working dir</span></span></div>
+          <div class="cr"><span class="pmt">$</span><span><span class="kw">git</span> <span class="sub">diff</span> <span class="val">--staged</span> <span class="cmt"># staged changes vs last commit</span></span></div>
+          <div class="cr"><span class="pmt">$</span><span><span class="kw">git</span> <span class="sub">diff</span> <span class="val">branch-a branch-b</span> <span class="cmt"># compare two branches</span></span></div>
+          <div class="cr" style="margin-top:6px"><span class="pmt">$</span><span><span class="kw">git</span> <span class="sub">stash</span> <span class="cmt"># save work temporarily</span></span></div>
+          <div class="cr"><span class="pmt">$</span><span><span class="kw">git</span> <span class="sub">stash</span> <span class="val">save</span> <span class="str">"work in progress on login"</span></span></div>
+          <div class="cr"><span class="pmt">$</span><span><span class="kw">git</span> <span class="sub">stash</span> <span class="val">list</span> <span class="cmt"># see all stashes</span></span></div>
+          <div class="cr"><span class="pmt">$</span><span><span class="kw">git</span> <span class="sub">stash</span> <span class="val">pop</span> <span class="cmt"># restore latest + remove from stash</span></span></div>
+          <div class="cr"><span class="pmt">$</span><span><span class="kw">git</span> <span class="sub">stash</span> <span class="val">clear</span> <span class="cmt"># remove all stashes</span></span></div>
+          <div class="cr" style="margin-top:6px"><span class="pmt">$</span><span><span class="kw">git</span> <span class="sub">tag</span> <span class="val">v1.0</span> <span class="cmt"># lightweight tag on current commit</span></span></div>
+          <div class="cr"><span class="pmt">$</span><span><span class="kw">git</span> <span class="sub">tag</span> <span class="val">-a</span> <span class="str">v1.0</span> <span class="val">-m</span> <span class="str">"First release"</span> <span class="cmt"># annotated tag</span></span></div>
+          <div class="cr"><span class="pmt">$</span><span><span class="kw">git</span> <span class="sub">push</span> <span class="val">origin</span> <span class="str">v1.0</span> <span class="cmt"># push tag to GitHub</span></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 7 -->
+  <div class="section">
+    <div class="section-header">
+      <span class="sh-num">07</span>
+      <div class="sh-dot" style="background:var(--red)"></div>
+      <span class="sh-label" style="color:var(--red)">GitHub — Remote Workflow</span>
+    </div>
+    <div class="section-body">
+      <div class="tc">
+        <div class="tc-title" style="color:var(--text)"><span style="background:var(--red);width:3px;height:14px;border-radius:2px;display:inline-block;margin-right:8px"></span>SSH key — why it's mandatory</div>
+        <div class="tc-body">Since 2021, GitHub disabled password authentication for pushing code. You need an <b>SSH key pair</b> — a private key (stays on your machine, never share) and a public key (upload to GitHub). They match like a lock and key, proving your identity securely without any password.</div>
+      </div>
+      <div class="cmd-block">
+        <div class="cb-hdr"><div class="cb-hdr-dot" style="background:var(--red)"></div>&nbsp;ssh setup</div>
+        <div class="cb-body">
+          <div class="cr"><span class="pmt">$</span><span><span class="kw">ssh-keygen</span> <span class="val">-t</span> <span class="str">ed25519</span> <span class="val">-C</span> <span class="str">"you@example.com"</span></span></div>
+          <div class="cr"><span class="cmt"># Press Enter to save to default path (~/.ssh/id_ed25519)</span></div>
+          <div class="cr"><span class="cmt"># Optional: add a passphrase for extra security</span></div>
+          <div class="cr"><span class="cmt"># Then copy ~/.ssh/id_ed25519.pub → GitHub Settings → SSH Keys</span></div>
+        </div>
+      </div>
+      <div class="cmd-block">
+        <div class="cb-hdr"><div class="cb-hdr-dot" style="background:var(--green)"></div>&nbsp;push + pull workflow</div>
+        <div class="cb-body">
+          <div class="cr"><span class="pmt">$</span><span><span class="kw">git</span> <span class="sub">remote</span> <span class="val">add</span> <span class="str">origin</span> <span class="val">git@github.com:user/repo.git</span></span></div>
+          <div class="cr"><span class="pmt">$</span><span><span class="kw">git</span> <span class="sub">remote</span> <span class="val">-v</span> <span class="cmt"># verify remote URL</span></span></div>
+          <div class="cr"><span class="pmt">$</span><span><span class="kw">git</span> <span class="sub">push</span> <span class="val">-u</span> <span class="str">origin main</span> <span class="cmt"># first push (sets upstream)</span></span></div>
+          <div class="cr"><span class="pmt">$</span><span><span class="kw">git</span> <span class="sub">push</span> <span class="cmt"># all future pushes (short form)</span></span></div>
+          <div class="cr"><span class="pmt">$</span><span><span class="kw">git</span> <span class="sub">pull</span> <span class="val">origin main</span> <span class="cmt"># fetch + merge from remote</span></span></div>
+          <div class="cr"><span class="pmt">$</span><span><span class="kw">git</span> <span class="sub">fetch</span> <span class="cmt"># download only, don't merge yet</span></span></div>
+        </div>
+      </div>
+      <div class="note"><b>fetch vs pull:</b> git fetch downloads changes but does NOT apply them — you review first. git pull = fetch + merge in one go. Use fetch when you want to inspect changes before applying. Use pull when you trust the remote and want to sync immediately.</div>
+    </div>
+  </div>
+
+  <!-- SECTION 8 -->
+  <div class="section">
+    <div class="section-header">
+      <span class="sh-num">08</span>
+      <div class="sh-dot" style="background:var(--purple)"></div>
+      <span class="sh-label" style="color:var(--purple)">History Management — Rebase & Reflog</span>
+    </div>
+    <div class="section-body">
+      <div class="two-col">
+        <div class="tc" style="margin-bottom:0">
+          <div class="tc-title" style="color:var(--text)"><span style="background:var(--purple);width:3px;height:14px;border-radius:2px;display:inline-block;margin-right:8px"></span>git rebase</div>
+          <div class="tc-body"><b>Replays your commits on top</b> of another branch instead of creating a merge commit. Result: clean, linear history that looks like one straight line of development. Preferred by teams that value clean history.</div>
+        </div>
+        <div class="tc" style="margin-bottom:0">
+          <div class="tc-title" style="color:var(--text)"><span style="background:var(--blue);width:3px;height:14px;border-radius:2px;display:inline-block;margin-right:8px"></span>git reflog</div>
+          <div class="tc-body">Records <b>every HEAD movement</b> — every checkout, commit, reset, rebase. Your ultimate safety net. Even if you delete a branch or do a bad reset, reflog shows the full trail so you can recover anything.</div>
+        </div>
+      </div>
+      <div class="cmd-block" style="margin-top:10px">
+        <div class="cb-hdr"><div class="cb-hdr-dot" style="background:var(--purple)"></div>&nbsp;rebase + reflog</div>
+        <div class="cb-body">
+          <div class="cr"><span class="pmt">$</span><span><span class="kw">git</span> <span class="sub">checkout</span> <span class="val">feature-branch</span></span></div>
+          <div class="cr"><span class="pmt">$</span><span><span class="kw">git</span> <span class="sub">rebase</span> <span class="val">main</span> <span class="cmt"># replay commits on top of main</span></span></div>
+          <div class="cr"><span class="pmt">$</span><span><span class="kw">git</span> <span class="sub">add</span> <span class="val">.</span> <span class="cmt"># after resolving any conflicts</span></span></div>
+          <div class="cr"><span class="pmt">$</span><span><span class="kw">git</span> <span class="sub">rebase</span> <span class="val">--continue</span> <span class="cmt"># continue after conflict fix</span></span></div>
+          <div class="cr" style="margin-top:6px"><span class="pmt">$</span><span><span class="kw">git</span> <span class="sub">reflog</span> <span class="cmt"># see full history of HEAD movements</span></span></div>
+          <div class="cr"><span class="pmt">$</span><span><span class="kw">git</span> <span class="sub">reset</span> <span class="val">--hard</span> <span class="str">HEAD@{2}</span> <span class="cmt"># go back 2 steps</span></span></div>
+          <div class="cr"><span class="pmt">$</span><span><span class="kw">git</span> <span class="sub">reset</span> <span class="val">--hard</span> <span class="str">&lt;commit-hash&gt;</span> <span class="cmt"># go to specific commit</span></span></div>
+        </div>
+      </div>
+      <div class="danger"><b>⚠ Rebase warning:</b> Never rebase branches that other people are using. Rebase rewrites history — if someone else based work on your old commits, it breaks their repo. Golden rule: <b>rebase local, merge public.</b></div>
+    </div>
+  </div>
+
+  <!-- CHEATSHEET -->
+  <div class="section">
+    <div class="section-header">
+      <span class="sh-num">⚡</span>
+      <div class="sh-dot" style="background:var(--blue)"></div>
+      <span class="sh-label" style="color:var(--blue)">Complete Cheatsheet — All Commands</span>
+    </div>
+    <div class="section-body">
+      <div class="cheat-grid">
+        <div class="ci"><span class="ci-cmd">git init</span><span class="ci-desc">create repo</span></div>
+        <div class="ci"><span class="ci-cmd">git status</span><span class="ci-desc">see state</span></div>
+        <div class="ci"><span class="ci-cmd">git add .</span><span class="ci-desc">stage all</span></div>
+        <div class="ci"><span class="ci-cmd">git commit -m ""</span><span class="ci-desc">save snapshot</span></div>
+        <div class="ci"><span class="ci-cmd">git log --oneline</span><span class="ci-desc">compact history</span></div>
+        <div class="ci"><span class="ci-cmd">git diff</span><span class="ci-desc">what changed</span></div>
+        <div class="ci"><span class="ci-cmd">git diff --staged</span><span class="ci-desc">staged changes</span></div>
+        <div class="ci"><span class="ci-cmd">git config --list</span><span class="ci-desc">see all settings</span></div>
+        <div class="ci"><span class="ci-cmd">git branch</span><span class="ci-desc">list branches</span></div>
+        <div class="ci"><span class="ci-cmd">git switch -c name</span><span class="ci-desc">create + switch</span></div>
+        <div class="ci"><span class="ci-cmd">git switch main</span><span class="ci-desc">change branch</span></div>
+        <div class="ci"><span class="ci-cmd">git merge branch</span><span class="ci-desc">merge in</span></div>
+        <div class="ci"><span class="ci-cmd">git branch -d name</span><span class="ci-desc">delete branch</span></div>
+        <div class="ci"><span class="ci-cmd">git stash</span><span class="ci-desc">save WIP</span></div>
+        <div class="ci"><span class="ci-cmd">git stash pop</span><span class="ci-desc">restore WIP</span></div>
+        <div class="ci"><span class="ci-cmd">git stash list</span><span class="ci-desc">see all stashes</span></div>
+        <div class="ci"><span class="ci-cmd">git tag v1.0</span><span class="ci-desc">mark release</span></div>
+        <div class="ci"><span class="ci-cmd">git remote add</span><span class="ci-desc">link GitHub</span></div>
+        <div class="ci"><span class="ci-cmd">git push -u origin</span><span class="ci-desc">first push</span></div>
+        <div class="ci"><span class="ci-cmd">git push</span><span class="ci-desc">push changes</span></div>
+        <div class="ci"><span class="ci-cmd">git pull</span><span class="ci-desc">sync + merge</span></div>
+        <div class="ci"><span class="ci-cmd">git fetch</span><span class="ci-desc">download only</span></div>
+        <div class="ci"><span class="ci-cmd">git rebase main</span><span class="ci-desc">clean history</span></div>
+        <div class="ci"><span class="ci-cmd">git reflog</span><span class="ci-desc">safety net</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- KEY INSIGHTS -->
+  <div class="section">
+    <div class="section-header">
+      <span class="sh-num">★</span>
+      <div class="sh-dot" style="background:var(--green)"></div>
+      <span class="sh-label" style="color:var(--green)">Key Takeaways</span>
+    </div>
+    <div class="section-body">
+      <div class="insight"><div class="i-bar" style="background:var(--green)"></div><div>Git = local software. GitHub = online platform. <b>They are not the same thing.</b> You can use Git without GitHub, but not GitHub without Git.</div></div>
+      <div class="insight"><div class="i-bar" style="background:var(--blue)"></div><div><b>SSH key setup is mandatory</b> — password auth has been disabled on GitHub since 2021. Generate your ed25519 key and add the public key to your GitHub settings.</div></div>
+      <div class="insight"><div class="i-bar" style="background:var(--amber)"></div><div><b>Atomic commits = one task per commit.</b> Keep them small and focused. A clean commit history makes debugging, reviewing, and reverting much easier.</div></div>
+      <div class="insight"><div class="i-bar" style="background:var(--purple)"></div><div><b>git reflog is your safety net</b> — you can recover almost anything with it, even deleted branches or bad resets. It's local only, not synced to GitHub.</div></div>
+      <div class="insight"><div class="i-bar" style="background:var(--red)"></div><div><b>Never force-push or rebase shared branches.</b> Rewrite history only on your local feature branches, never on main or branches others are using.</div></div>
+    </div>
+  </div>
+
+  <!-- TAGS 
+  <div class="tags-wrap">
+    <span class="tag t-g">#30DaysOfDevOps</span>
+    <span class="tag t-g">#Day1</span>
+    <span class="tag t-b">#Git</span>
+    <span class="tag t-b">#GitHub</span>
+    <span class="tag t-a">#VersionControl</span>
+    <span class="tag t-a">#DevOps</span>
+    <span class="tag t-p">#100DaysOfCode</span>
+    <span class="tag t-p">#LearnInPublic</span>
+    <span class="tag t-g">#OpenSource</span>
+    <span class="tag t-b">#DevJourney</span>
+    <span class="tag t-a">#Coding</span>
+  </div>
+-->
+  <div class="footer">made with ♥ during <span>#30DaysOfDevOps</span> — day_01 complete</div>
+</div>
+</body>
+</html>
