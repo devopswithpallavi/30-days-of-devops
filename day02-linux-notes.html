@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day 02 Notes — Linux</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0D1117;--bg2:#161B22;--bg3:#21262D;--border:#30363D;--text:#E6EDF3;--text2:#C9D1D9;--muted:#8B949E;--dim:#484F58;--green:#3FB950;--gbg:#0D1F12;--gbr:#238636;--blue:#58A6FF;--bbg:#0C2340;--bbr:#1F6FEB;--amber:#E3B341;--abg:#1C1700;--abr:#9E6A03;--purple:#BC8CFF;--pbg:#1A1040;--pbr:#6E40C9;--red:#FF7B72;--rbg:#1C0A09;--rbr:#8B2020;--cyan:#39D5D5;--cbg:#0A1F1F;--cbr:#1B6F6F;}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:#080C10;color:var(--text);padding:40px 20px;line-height:1.8}
+.wrap{max-width:740px;margin:0 auto}
+.header{background:var(--bg2);border:0.5px solid var(--border);border-radius:20px;padding:32px 32px 24px;margin-bottom:16px;position:relative;overflow:hidden}
+.header::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#E3B341,#3FB950,#58A6FF,#BC8CFF)}
+.hdr-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px}
+.day-tag{display:inline-flex;align-items:center;gap:6px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--amber);background:var(--abg);border:0.5px solid var(--abr);border-radius:999px;padding:4px 12px}
+.day-dot{width:6px;height:6px;border-radius:50%;background:var(--amber);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+.prog{display:flex;gap:3px}
+.pg{width:18px;height:3px;border-radius:2px;background:var(--border)}
+.pg.d{background:var(--green)}.pg.c{background:var(--amber)}
+.header h1{font-size:30px;font-weight:600;margin-bottom:6px}
+.header h1 span{color:var(--amber)}
+.header p{font-size:14px;color:var(--muted)}
+.toc{display:flex;flex-wrap:wrap;gap:7px;margin-top:16px;padding-top:16px;border-top:0.5px solid var(--border)}
+.ti{font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--muted);background:var(--bg3);border:0.5px solid var(--border);border-radius:6px;padding:3px 10px}
+.nc{background:var(--bg2);border:0.5px solid var(--border);border-radius:14px;margin-bottom:14px;overflow:hidden}
+.nc-hdr{display:flex;align-items:center;gap:10px;padding:14px 20px;border-bottom:0.5px solid var(--border)}
+.nc-num{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--dim);min-width:24px}
+.nc-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.nc-title{font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;font-family:'JetBrains Mono',monospace;flex:1}
+.nc-body{padding:20px}
+p.s{font-size:14px;color:var(--muted);line-height:1.85;margin-bottom:12px}
+p.s:last-child{margin-bottom:0}
+p.s b{color:var(--text2);font-weight:500}
+h3{font-size:13px;font-weight:500;color:var(--text);margin:18px 0 8px;display:flex;align-items:center;gap:8px}
+h3:first-child{margin-top:0}
+h3 .bar{width:3px;height:13px;border-radius:2px;flex-shrink:0;display:inline-block}
+.box{border-radius:8px;padding:12px 16px;margin:10px 0;font-size:13px;line-height:1.75}
+.box b{font-weight:600}
+.bg{background:var(--gbg);border-left:3px solid var(--green);color:#4AC261}
+.bb{background:var(--bbg);border-left:3px solid var(--blue);color:#79C0FF}
+.ba{background:var(--abg);border-left:3px solid var(--amber);color:var(--amber)}
+.bp{background:var(--pbg);border-left:3px solid var(--purple);color:var(--purple)}
+.br{background:var(--rbg);border-left:3px solid var(--red);color:var(--red)}
+.bc{background:var(--cbg);border-left:3px solid var(--cyan);color:var(--cyan)}
+.dl{display:flex;flex-direction:column;gap:8px;margin:10px 0}
+.di{background:var(--bg);border:0.5px solid var(--border);border-radius:8px;padding:12px 14px;display:flex;gap:12px;align-items:flex-start}
+.dk{font-family:'JetBrains Mono',monospace;font-size:11.5px;font-weight:500;min-width:100px;flex-shrink:0;padding-top:1px}
+.dv{font-size:13px;color:var(--muted);line-height:1.65}
+.dv b{color:var(--text2);font-weight:500}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}
+@media(max-width:520px){.two{grid-template-columns:1fr}}
+.three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:10px 0}
+@media(max-width:560px){.three{grid-template-columns:1fr 1fr}}
+.cc{background:var(--bg);border:0.5px solid var(--border);border-radius:10px;padding:14px 16px}
+.ct{font-size:13px;font-weight:600;margin-bottom:6px}
+.cb{font-size:12px;color:var(--muted);line-height:1.7}
+.cb b{color:var(--text2);font-weight:500}
+.flow{display:flex;flex-direction:column;gap:0;margin:12px 0}
+.fl{display:flex;gap:14px;align-items:flex-start}
+.fll{display:flex;flex-direction:column;align-items:center}
+.fc{width:30px;height:30px;border-radius:50%;border:1.5px solid;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;font-family:'JetBrains Mono',monospace;flex-shrink:0;text-align:center;line-height:1.2}
+.fln{width:1.5px;flex:1;min-height:18px;background:var(--border);margin:4px 0}
+.fl:last-child .fln{display:none}
+.flc{padding:3px 0 18px}
+.flt{font-size:13px;font-weight:500;color:var(--text);margin-bottom:4px}
+.fld{font-size:12px;color:var(--muted);line-height:1.65}
+.fld b{color:var(--text2);font-weight:500}
+.perm-box{background:#010409;border:0.5px solid var(--border);border-radius:10px;padding:16px;margin:10px 0}
+.pl{font-size:10px;color:var(--dim);font-family:'JetBrains Mono',monospace;margin-bottom:8px}
+.pc{padding:6px 10px;border-radius:4px;margin-right:4px;font-size:12px;text-align:center;font-family:'JetBrains Mono',monospace}
+.divider{border:none;border-top:0.5px solid var(--border);margin:14px 0}
+.tags{display:flex;flex-wrap:wrap;gap:7px;padding-top:16px;border-top:0.5px solid var(--border);margin-top:16px}
+.tag{font-size:10px;padding:3px 10px;border-radius:999px;border:0.5px solid;font-family:'JetBrains Mono',monospace}
+.tg{color:var(--green);border-color:var(--gbr);background:var(--gbg)}
+.tb{color:var(--blue);border-color:var(--bbr);background:var(--bbg)}
+.ta{color:var(--amber);border-color:var(--abr);background:var(--abg)}
+.tp{color:var(--purple);border-color:var(--pbr);background:var(--pbg)}
+.tc{color:var(--cyan);border-color:var(--cbr);background:var(--cbg)}
+.footer{text-align:center;font-size:11px;color:var(--dim);font-family:'JetBrains Mono',monospace;padding:24px 0 0}
+.footer span{color:var(--amber)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="header">
+    <div class="hdr-top">
+      <span class="day-tag"><div class="day-dot"></div>Day 02 / 30 — Theory Notes</span>
+      <div class="prog">
+        <div class="pg d"></div><div class="pg c"></div>
+        <div class="pg"></div><div class="pg"></div><div class="pg"></div>
+        <div class="pg"></div><div class="pg"></div><div class="pg"></div>
+        <div class="pg"></div><div class="pg"></div>
+      </div>
+    </div>
+    <h1><span>Linux</span> — Theory Notes</h1>
+    <p>Everything about Linux — what it is, how it works, why it matters. Beginner to advanced, all in one place. No commands — pure concepts.</p>
+    <div class="toc">
+      <span class="ti">What is Linux</span><span class="ti">Why DevOps needs Linux</span>
+      <span class="ti">Architecture</span><span class="ti">File System</span>
+      <span class="ti">Everything is a File</span><span class="ti">Users & Groups</span>
+      <span class="ti">Permissions</span><span class="ti">Processes</span>
+      <span class="ti">Package Management</span><span class="ti">Networking</span>
+      <span class="ti">Shell & Scripting</span><span class="ti">Linux in DevOps</span>
+    </div>
+  </div>
+
+  <!-- 01 -->
+  <div class="nc">
+    <div class="nc-hdr"><span class="nc-num">01</span><div class="nc-dot" style="background:var(--amber)"></div><span class="nc-title" style="color:var(--amber)">What is Linux?</span></div>
+    <div class="nc-body">
+      <p class="s">Linux is a free, open-source <b>operating system</b>. Just like Windows or macOS runs your laptop, Linux runs computers — but it's free, open, and can run on anything from a Raspberry Pi to the world's most powerful servers.</p>
+      <p class="s">Created in <b>1991 by Linus Torvalds</b> — a Finnish student who wanted a free alternative. He released the source code publicly and the world built upon it. Today Linux powers <b>over 90% of the internet's servers</b>, all Android phones, supercomputers, and almost every cloud platform.</p>
+      <div class="box ba">💡 <b>Simple definition:</b> Linux is the operating system that runs the internet. When you visit any website, there's a very high chance a Linux server is sending you that page.</div>
+      <div class="divider"></div>
+      <h3><span class="bar" style="background:var(--blue)"></span>Linux vs Windows vs macOS</h3>
+      <div class="two">
+        <div class="cc" style="border-left:3px solid var(--blue)"><div class="ct" style="color:var(--blue)">Linux</div><div class="cb">Free & open source. Runs on everything. <b>No GUI needed</b> — terminal is enough. Highly customizable. Preferred for servers, DevOps, cloud.</div></div>
+        <div class="cc" style="border-left:3px solid var(--muted)"><div class="ct" style="color:var(--text2)">Windows / macOS</div><div class="cb">Commercial OS. GUI-focused. Made for personal computers. <b>Not ideal for servers</b> — expensive licensing, heavy on resources.</div></div>
+      </div>
+      <div class="box bg" style="margin-top:4px">🐧 <b>Linux Distros:</b> Linux is just the kernel. Different groups package it differently — called distros. Popular: <b>Ubuntu</b> (beginner), <b>CentOS/RHEL</b> (enterprise), <b>Debian</b> (stable), <b>Alpine</b> (tiny, used in Docker), <b>Amazon Linux</b> (AWS).</div>
+    </div>
+  </div>
+
+  <!-- 02 -->
+  <div class="nc">
+    <div class="nc-hdr"><span class="nc-num">02</span><div class="nc-dot" style="background:var(--green)"></div><span class="nc-title" style="color:var(--green)">Why DevOps Needs Linux</span></div>
+    <div class="nc-body">
+      <p class="s">In DevOps, you work with servers, containers, cloud platforms, and automation tools — <b>all of which run on Linux</b>. Docker runs on Linux. Kubernetes runs on Linux. AWS, Azure, GCP servers run Linux. CI/CD pipelines run on Linux. There is no escaping it.</p>
+      <div class="dl">
+        <div class="di"><span class="dk" style="color:var(--green)">Servers</span><span class="dv">90%+ of web servers run Linux. When you SSH into a production server, you land in a Linux terminal. <b>You must be comfortable there.</b></span></div>
+        <div class="di"><span class="dk" style="color:var(--blue)">Containers</span><span class="dv">Docker containers are <b>lightweight Linux environments</b>. Every Dockerfile starts with a Linux base image. Linux knowledge = container knowledge.</span></div>
+        <div class="di"><span class="dk" style="color:var(--purple)">Automation</span><span class="dv">Shell scripts, Ansible playbooks, Terraform configs — all run on Linux. <b>Automation is impossible without knowing Linux.</b></span></div>
+        <div class="di"><span class="dk" style="color:var(--amber)">Cloud</span><span class="dv">AWS EC2, Google Compute Engine, Azure VMs — default OS is Linux. You interact with cloud resources via Linux terminal.</span></div>
+        <div class="di"><span class="dk" style="color:var(--cyan)">Cost</span><span class="dv">Linux is <b>free</b>. No licensing fees. Companies run thousands of Linux servers in cloud — economical at massive scale.</span></div>
+      </div>
+      <div class="box bg">🚀 <b>Bottom line:</b> If Git is the starting point of DevOps, Linux is the ground everything runs on. Without Linux, there is no DevOps.</div>
+    </div>
+  </div>
+
+  <!-- 03 -->
+  <div class="nc">
+    <div class="nc-hdr"><span class="nc-num">03</span><div class="nc-dot" style="background:var(--blue)"></div><span class="nc-title" style="color:var(--blue)">Linux Architecture</span></div>
+    <div class="nc-body">
+      <p class="s">Linux is built in layers. Each layer communicates with the one below it. Understanding this helps you understand <b>how Linux actually works</b> under the hood.</p>
+      <div class="flow">
+        <div class="fl">
+          <div class="fll"><div class="fc" style="border-color:var(--purple);color:var(--purple);background:var(--pbg)">Apps</div><div class="fln"></div></div>
+          <div class="flc"><div class="flt" style="color:var(--purple)">User / Applications Layer</div><div class="fld">Programs you run — browser, Python script, Docker. These are <b>user space</b> programs. They don't directly touch hardware — they go through the layers below.</div></div>
+        </div>
+        <div class="fl">
+          <div class="fll"><div class="fc" style="border-color:var(--blue);color:var(--blue);background:var(--bbg)">Shell</div><div class="fln"></div></div>
+          <div class="flc"><div class="flt" style="color:var(--blue)">Shell — Your Interface</div><div class="fld">You type commands, the shell interprets them and sends instructions to the kernel. Common shells: <b>bash</b> (most common), <b>zsh</b>, <b>sh</b>. Terminal = how you access the shell.</div></div>
+        </div>
+        <div class="fl">
+          <div class="fll"><div class="fc" style="border-color:var(--amber);color:var(--amber);background:var(--abg)">Kernel</div><div class="fln"></div></div>
+          <div class="flc"><div class="flt" style="color:var(--amber)">Kernel — The Heart of Linux</div><div class="fld">Manages everything — CPU, memory, storage, network, processes. The bridge between software and hardware. <b>When Linus created "Linux" — he created the kernel.</b> Everything else was built around it.</div></div>
+        </div>
+        <div class="fl">
+          <div class="fll"><div class="fc" style="border-color:var(--green);color:var(--green);background:var(--gbg)">HW</div></div>
+          <div class="flc"><div class="flt" style="color:var(--green)">Hardware</div><div class="fld">Physical machine — CPU, RAM, disk, network card. Kernel talks to hardware via <b>device drivers</b>. Your application never touches hardware directly.</div></div>
+        </div>
+      </div>
+      <div class="box bb">💡 <b>The chain:</b> You type command → Shell interprets → Kernel executes → Hardware responds. Every single Linux operation follows this path.</div>
+    </div>
+  </div>
+
+  <!-- 04 -->
+  <div class="nc">
+    <div class="nc-hdr"><span class="nc-num">04</span><div class="nc-dot" style="background:var(--purple)"></div><span class="nc-title" style="color:var(--purple)">Linux File System</span></div>
+    <div class="nc-body">
+      <p class="s">Linux has a <b>single tree structure</b> starting from root (<span style="color:var(--amber);font-family:'JetBrains Mono',monospace">/</span>). Everything — files, folders, devices, processes — lives under this single root. No C:\ or D:\ drives like Windows. Just one unified tree.</p>
+      <div class="box ba">💡 <b>Root is NOT the root user.</b> <span style="color:var(--muted)">The <b style="color:var(--amber)">/</b> symbol = top of filesystem tree. The root user = admin user. Same word, different meanings.</span></div>
+      <div class="divider"></div>
+      <h3><span class="bar" style="background:var(--purple)"></span>Important Directories — What lives where</h3>
+      <div class="dl">
+        <div class="di"><span class="dk" style="color:var(--amber);font-family:'JetBrains Mono',monospace">/</span><span class="dv"><b>Root</b> — very top of filesystem. Everything starts here.</span></div>
+        <div class="di"><span class="dk" style="color:var(--green);font-family:'JetBrains Mono',monospace">/home</span><span class="dv"><b>Home directories</b> for all regular users. Your personal files live here. /home/pallavi is your folder.</span></div>
+        <div class="di"><span class="dk" style="color:var(--red);font-family:'JetBrains Mono',monospace">/root</span><span class="dv"><b>Home directory for the root (admin) user only.</b> Separate from /home.</span></div>
+        <div class="di"><span class="dk" style="color:var(--blue);font-family:'JetBrains Mono',monospace">/etc</span><span class="dv"><b>Configuration files</b> for system and all software. nginx config, SSH config, user accounts — all here. Critical folder.</span></div>
+        <div class="di"><span class="dk" style="color:var(--blue);font-family:'JetBrains Mono',monospace">/var</span><span class="dv"><b>Variable data</b> — things that change constantly. Log files (/var/log), databases. When debugging, always check /var/log.</span></div>
+        <div class="di"><span class="dk" style="color:var(--purple);font-family:'JetBrains Mono',monospace">/bin, /usr/bin</span><span class="dv"><b>Executable programs</b>. When you type ls or git — Linux looks here to find and run them.</span></div>
+        <div class="di"><span class="dk" style="color:var(--cyan);font-family:'JetBrains Mono',monospace">/tmp</span><span class="dv"><b>Temporary files</b> — cleared on reboot. Never store important data here.</span></div>
+        <div class="di"><span class="dk" style="color:var(--amber);font-family:'JetBrains Mono',monospace">/proc</span><span class="dv"><b>Virtual filesystem</b> — not real files on disk. Live info about running processes. /proc/cpuinfo shows CPU details.</span></div>
+        <div class="di"><span class="dk" style="color:var(--green);font-family:'JetBrains Mono',monospace">/dev</span><span class="dv"><b>Device files</b>. Hard disk = /dev/sda. USB = /dev/sdb. Hardware appears as files in Linux.</span></div>
+        <div class="di"><span class="dk" style="color:var(--purple);font-family:'JetBrains Mono',monospace">/opt</span><span class="dv"><b>Optional software</b>. Third-party apps installed manually go here. Java, custom tools.</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 05 -->
+  <div class="nc">
+    <div class="nc-hdr"><span class="nc-num">05</span><div class="nc-dot" style="background:var(--cyan)"></div><span class="nc-title" style="color:var(--cyan)">Everything is a File</span></div>
+    <div class="nc-body">
+      <p class="s">This is one of the most fundamental — and surprising — Linux concepts. <b>In Linux, everything is treated as a file.</b> Not just documents and folders — hardware devices, network connections, processes, system info — all are files.</p>
+      <div class="dl">
+        <div class="di"><span class="dk" style="color:var(--green)">Regular files</span><span class="dv">Text files, scripts, images, binaries. Normal files you create and edit.</span></div>
+        <div class="di"><span class="dk" style="color:var(--blue)">Directories</span><span class="dv">Folders — but in Linux, <b>a directory is also a file</b> that contains references to other files.</span></div>
+        <div class="di"><span class="dk" style="color:var(--amber)">Device files</span><span class="dv">Keyboard, hard disk, USB — all appear as files in /dev. To read from a device, you read its file.</span></div>
+        <div class="di"><span class="dk" style="color:var(--purple)">Socket files</span><span class="dv">Network connections between processes are files. Docker communicates via /var/run/docker.sock — a socket file.</span></div>
+        <div class="di"><span class="dk" style="color:var(--cyan)">Symbolic links</span><span class="dv">Shortcuts — a file that points to another file. More powerful than Windows shortcuts. Called <b>symlinks</b>.</span></div>
+      </div>
+      <div class="box bc">💡 <b>Why this matters in DevOps:</b> When Docker mounts a volume, when Kubernetes injects a config, when nginx reads a config — it's all just file operations. This concept makes advanced DevOps much simpler to understand.</div>
+    </div>
+  </div>
+
+  <!-- 06 -->
+  <div class="nc">
+    <div class="nc-hdr"><span class="nc-num">06</span><div class="nc-dot" style="background:var(--red)"></div><span class="nc-title" style="color:var(--red)">Users & Groups</span></div>
+    <div class="nc-body">
+      <p class="s">Linux is a <b>multi-user system</b>. Multiple people (or processes) can use the same machine simultaneously. Linux keeps them separate and secure using users and groups.</p>
+      <div class="dl">
+        <div class="di"><span class="dk" style="color:var(--red)">Root user</span><span class="dv">The superuser — <b>unrestricted access to everything</b>. Can install software, change any file, manage users. Like the God of the system. Use with extreme care.</span></div>
+        <div class="di"><span class="dk" style="color:var(--blue)">Regular users</span><span class="dv">Normal users with limited permissions. Can only access their own files and approved resources. <b>Best practice: never run as root</b> in daily use.</span></div>
+        <div class="di"><span class="dk" style="color:var(--green)">Groups</span><span class="dv">A collection of users. Permissions assigned to a group — all members get that permission. The <b>docker group</b> lets users run Docker without sudo.</span></div>
+        <div class="di"><span class="dk" style="color:var(--amber)">sudo</span><span class="dv"><b>"Super User Do"</b> — temporarily run one command with root privileges. Safer than logging in as root. Power for one command only.</span></div>
+        <div class="di"><span class="dk" style="color:var(--purple)">Service users</span><span class="dv">Special system users created for services — nginx user, postgres user. <b>No login shell</b> — only exist to run processes securely.</span></div>
+      </div>
+      <div class="box br">⚠️ <b>Principle of least privilege:</b> Every user and process should have only the minimum permissions needed — nothing more. Limits damage if something is compromised.</div>
+      <div class="box bb" style="margin-top:8px">📌 <b>User info stored in:</b> <span style="color:var(--muted)">/etc/passwd (users), /etc/shadow (encrypted passwords), /etc/group (groups). Plain text files — Linux config is always human-readable.</span></div>
+    </div>
+  </div>
+
+  <!-- 07 -->
+  <div class="nc">
+    <div class="nc-hdr"><span class="nc-num">07</span><div class="nc-dot" style="background:var(--amber)"></div><span class="nc-title" style="color:var(--amber)">File Permissions</span></div>
+    <div class="nc-body">
+      <p class="s">Every file in Linux has permissions controlling <b>who can read, write, or execute it</b>. This is Linux's core security model. As a DevOps engineer, wrong permissions = broken deployments or security holes.</p>
+      <h3><span class="bar" style="background:var(--amber)"></span>The permission string</h3>
+      <p class="s" style="margin-bottom:10px">When you list files, you see: <span style="color:var(--green);font-family:'JetBrains Mono',monospace">-rwxr-xr--</span> — here's how to read it:</p>
+      <div class="perm-box">
+        <div class="pl">permission string — 10 characters</div>
+        <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px">
+          <div class="pc" style="background:var(--abg);border:0.5px solid var(--abr);color:var(--amber)">-</div>
+          <div class="pc" style="background:var(--gbg);border:0.5px solid var(--gbr);color:var(--green)">r</div>
+          <div class="pc" style="background:var(--gbg);border:0.5px solid var(--gbr);color:var(--green)">w</div>
+          <div class="pc" style="background:var(--gbg);border:0.5px solid var(--gbr);color:var(--green)">x</div>
+          <div class="pc" style="background:var(--bbg);border:0.5px solid var(--bbr);color:var(--blue)">r</div>
+          <div class="pc" style="background:var(--bbg);border:0.5px solid var(--bbr);color:var(--blue)">-</div>
+          <div class="pc" style="background:var(--bbg);border:0.5px solid var(--bbr);color:var(--blue)">x</div>
+          <div class="pc" style="background:var(--pbg);border:0.5px solid var(--pbr);color:var(--purple)">r</div>
+          <div class="pc" style="background:var(--pbg);border:0.5px solid var(--pbr);color:var(--purple)">-</div>
+          <div class="pc" style="background:var(--pbg);border:0.5px solid var(--pbr);color:var(--purple)">-</div>
+        </div>
+        <div style="display:flex;gap:4px;font-size:10px;color:var(--dim);font-family:'JetBrains Mono',monospace;flex-wrap:wrap">
+          <div style="width:28px;text-align:center">type</div>
+          <div style="width:88px;text-align:center;color:var(--green)">owner (user)</div>
+          <div style="width:88px;text-align:center;color:var(--blue)">group</div>
+          <div style="width:88px;text-align:center;color:var(--purple)">others</div>
+        </div>
+      </div>
+      <div class="three" style="margin-top:10px">
+        <div class="cc" style="border-left:2px solid var(--green)"><div class="ct" style="color:var(--green);font-family:'JetBrains Mono',monospace">r = read</div><div class="cb">View file content or list folder. Value: <b>4</b></div></div>
+        <div class="cc" style="border-left:2px solid var(--amber)"><div class="ct" style="color:var(--amber);font-family:'JetBrains Mono',monospace">w = write</div><div class="cb">Modify or delete the file. Value: <b>2</b></div></div>
+        <div class="cc" style="border-left:2px solid var(--red)"><div class="ct" style="color:var(--red);font-family:'JetBrains Mono',monospace">x = execute</div><div class="cb">Run as program/script. Value: <b>1</b></div></div>
+      </div>
+      <h3 style="margin-top:16px"><span class="bar" style="background:var(--blue)"></span>Numeric permissions</h3>
+      <div class="dl">
+        <div class="di"><span class="dk" style="color:var(--red);font-family:'JetBrains Mono',monospace">777</span><span class="dv">rwxrwxrwx — <b>everyone can do everything.</b> Never use on production — huge security risk.</span></div>
+        <div class="di"><span class="dk" style="color:var(--blue);font-family:'JetBrains Mono',monospace">755</span><span class="dv">rwxr-xr-x — owner full access, others read+execute. <b>Standard for executables and directories.</b></span></div>
+        <div class="di"><span class="dk" style="color:var(--amber);font-family:'JetBrains Mono',monospace">644</span><span class="dv">rw-r--r-- — owner read/write, others read only. <b>Standard for regular files.</b></span></div>
+        <div class="di"><span class="dk" style="color:var(--green);font-family:'JetBrains Mono',monospace">600</span><span class="dv">rw------- — only owner read/write. <b>Used for SSH private keys.</b></span></div>
+        <div class="di"><span class="dk" style="color:var(--purple);font-family:'JetBrains Mono',monospace">400</span><span class="dv">r-------- — read only by owner. <b>AWS .pem key files use this.</b> Maximum restriction.</span></div>
+      </div>
+      <div class="box ba">💡 <b>How to calculate:</b> r=4, w=2, x=1. Add them up per group. rwx=7, r-x=5, rw-=6. So 755 = rwxr-xr-x. 644 = rw-r--r--.</div>
+    </div>
+  </div>
+
+  <!-- 08 -->
+  <div class="nc">
+    <div class="nc-hdr"><span class="nc-num">08</span><div class="nc-dot" style="background:var(--blue)"></div><span class="nc-title" style="color:var(--blue)">Processes</span></div>
+    <div class="nc-body">
+      <p class="s">A <b>process is a running program</b>. Every command you run, every service on a server — each is a process. Linux assigns every process a unique <b>PID (Process ID)</b>.</p>
+      <div class="dl">
+        <div class="di"><span class="dk" style="color:var(--green)">PID</span><span class="dv"><b>Process ID</b> — unique number for every running process. PID 1 is always the first process (systemd). Used to manage and kill processes.</span></div>
+        <div class="di"><span class="dk" style="color:var(--blue)">Foreground</span><span class="dv">Process running in your terminal — you see its output. <b>Blocks your terminal</b> until done. Can't run other commands while it runs.</span></div>
+        <div class="di"><span class="dk" style="color:var(--purple)">Background</span><span class="dv">Process running silently behind the scenes. Terminal stays free. Long-running servers use this.</span></div>
+        <div class="di"><span class="dk" style="color:var(--amber)">Daemon</span><span class="dv">A <b>background service</b> that starts on boot and runs continuously. nginx, sshd, docker — all are daemons. Managed by systemd.</span></div>
+        <div class="di"><span class="dk" style="color:var(--red)">Zombie</span><span class="dv">A finished process whose entry hasn't been cleaned up. Harmless individually — parent process must clean up children.</span></div>
+        <div class="di"><span class="dk" style="color:var(--cyan)">Orphan</span><span class="dv">Process whose parent was killed. Linux adopts it under PID 1 (systemd) automatically.</span></div>
+      </div>
+      <div class="box bb">💡 <b>systemd</b> is the modern init system (PID 1) — first process Linux starts. It manages all services (start, stop, restart, enable on boot). In DevOps, you'll use <b>systemctl</b> constantly to manage nginx, docker, ssh, etc.</div>
+    </div>
+  </div>
+
+  <!-- 09 -->
+  <div class="nc">
+    <div class="nc-hdr"><span class="nc-num">09</span><div class="nc-dot" style="background:var(--green)"></div><span class="nc-title" style="color:var(--green)">Package Management</span></div>
+    <div class="nc-body">
+      <p class="s">Installing software on Linux is done through a <b>package manager</b> — not by downloading .exe files. Package managers handle downloading, installing, updating, and removing software along with all dependencies automatically.</p>
+      <div class="two">
+        <div class="cc" style="border-left:3px solid #F97316"><div class="ct" style="color:#F97316">apt / apt-get</div><div class="cb">Used on <b>Debian / Ubuntu</b>. Most common for beginners. apt is the newer, friendlier version.</div></div>
+        <div class="cc" style="border-left:3px solid var(--blue)"><div class="ct" style="color:var(--blue)">yum / dnf</div><div class="cb">Used on <b>RHEL / CentOS / Amazon Linux</b> — enterprise servers. dnf is modern replacement for yum.</div></div>
+        <div class="cc" style="border-left:3px solid var(--purple)"><div class="ct" style="color:var(--purple)">apk</div><div class="cb">Used in <b>Alpine Linux</b> — the tiny distro used in Docker containers. Extremely fast and minimal.</div></div>
+        <div class="cc" style="border-left:3px solid var(--cyan)"><div class="ct" style="color:var(--cyan)">snap / flatpak</div><div class="cb">Universal package formats that work across all distros. Package includes all dependencies — no conflicts.</div></div>
+      </div>
+      <div class="box bg">💡 <b>How it works:</b> Package managers pull from online <b>repositories</b> — trusted servers maintained by the distro. Always run update before install to get the latest package list from the repo.</div>
+    </div>
+  </div>
+
+  <!-- 10 -->
+  <div class="nc">
+    <div class="nc-hdr"><span class="nc-num">10</span><div class="nc-dot" style="background:var(--cyan)"></div><span class="nc-title" style="color:var(--cyan)">Linux Networking Basics</span></div>
+    <div class="nc-body">
+      <p class="s">In DevOps, servers constantly communicate over networks. Understanding these concepts is essential for <b>troubleshooting connectivity, configuring servers, and securing deployments.</b></p>
+      <div class="dl">
+        <div class="di"><span class="dk" style="color:var(--cyan)">IP Address</span><span class="dv">Unique address for every device on a network. <b>Private IPs</b> (192.168.x.x, 10.x.x.x) are inside your network. <b>Public IPs</b> are reachable from internet.</span></div>
+        <div class="di"><span class="dk" style="color:var(--blue)">Port</span><span class="dv">Number identifying a specific service on a machine. Port 22=SSH, 80=HTTP, 443=HTTPS, 3306=MySQL, 6443=Kubernetes. <b>IP + Port = exact destination.</b></span></div>
+        <div class="di"><span class="dk" style="color:var(--green)">SSH</span><span class="dv"><b>Secure Shell</b> — encrypted way to remotely control a Linux machine via terminal. How you manage all cloud servers. Uses port 22 and your SSH key pair.</span></div>
+        <div class="di"><span class="dk" style="color:var(--amber)">DNS</span><span class="dv"><b>Domain Name System</b> — translates domain names (google.com) to IPs. Like a phonebook for the internet. /etc/resolv.conf stores DNS config.</span></div>
+        <div class="di"><span class="dk" style="color:var(--purple)">Firewall</span><span class="dv">Controls which traffic is allowed in/out. Linux uses <b>iptables</b> (advanced) or <b>ufw</b> (simple). In cloud: Security Groups act as firewall.</span></div>
+        <div class="di"><span class="dk" style="color:var(--red)">localhost</span><span class="dv">Always refers to <b>your own machine</b>. IP 127.0.0.1. App connecting to "localhost:3000" is connecting to itself.</span></div>
+      </div>
+      <div class="box bc">💡 <b>In DevOps:</b> SSH into servers to configure them. Open ports so services are accessible. Configure DNS so app is reachable by domain. Use firewalls to block unwanted traffic. Linux networking is the backbone of all of this.</div>
+    </div>
+  </div>
+
+  <!-- 11 -->
+  <div class="nc">
+    <div class="nc-hdr"><span class="nc-num">11</span><div class="nc-dot" style="background:var(--purple)"></div><span class="nc-title" style="color:var(--purple)">Shell & Shell Scripting</span></div>
+    <div class="nc-body">
+      <p class="s">The <b>shell is your interface to Linux</b>. You type commands, the shell runs them. But the real power comes from <b>shell scripting</b> — multiple commands in a file, run automatically. This is the foundation of automation in DevOps.</p>
+      <div class="dl">
+        <div class="di"><span class="dk" style="color:var(--purple)">bash</span><span class="dv"><b>Bourne Again Shell</b> — most common shell on Linux. Default on Ubuntu, CentOS, Amazon Linux. When you write shell scripts, you almost always write bash scripts.</span></div>
+        <div class="di"><span class="dk" style="color:var(--blue)">zsh</span><span class="dv">Modern shell with more features. Default on macOS. Popular for its plugins and themes (oh-my-zsh).</span></div>
+        <div class="di"><span class="dk" style="color:var(--green)">sh</span><span class="dv">Original POSIX shell. Most basic, most compatible. Scripts in sh run on any Unix system.</span></div>
+      </div>
+      <h3><span class="bar" style="background:var(--purple)"></span>What shell scripts can do</h3>
+      <div class="dl">
+        <div class="di"><span class="dk" style="color:var(--green)">Automate tasks</span><span class="dv">Backup files nightly, clean logs weekly, deploy code on every push — <b>anything repetitive can be scripted.</b></span></div>
+        <div class="di"><span class="dk" style="color:var(--blue)">Server setup</span><span class="dv">Script that installs nginx, configures it, starts it, enables on boot — <b>run it on any new server in seconds.</b></span></div>
+        <div class="di"><span class="dk" style="color:var(--amber)">CI/CD pipelines</span><span class="dv">GitHub Actions, Jenkins — they all run shell scripts internally. <b>Build, test, deploy — all automated shell commands.</b></span></div>
+        <div class="di"><span class="dk" style="color:var(--purple)">Monitoring</span><span class="dv">Scripts that check disk space, CPU usage, service status and <b>send alerts</b> when something is wrong.</span></div>
+      </div>
+      <div class="box bp">💡 <b>Shebang line:</b> Every bash script starts with <span style="color:var(--text2);font-family:'JetBrains Mono',monospace">#!/bin/bash</span> — tells Linux which shell to use. Without it, Linux doesn't know how to interpret the file.</div>
+      <div class="box ba" style="margin-top:8px">⚡ <b>Variables, loops, conditions, functions</b> — bash supports all programming constructs. Shell scripting is a complete programming environment built into every Linux system.</div>
+    </div>
+  </div>
+
+  <!-- 12 -->
+  <div class="nc">
+    <div class="nc-hdr"><span class="nc-num">12</span><div class="nc-dot" style="background:var(--amber)"></div><span class="nc-title" style="color:var(--amber)">Linux in DevOps — The Big Picture</span></div>
+    <div class="nc-body">
+      <p class="s">Linux is not just one tool in DevOps — it is the <b>foundation everything is built on</b>. Every technology in this 30-day challenge runs on Linux or relies on Linux concepts.</p>
+      <div class="flow">
+        <div class="fl">
+          <div class="fll"><div class="fc" style="border-color:var(--green);color:var(--green);background:var(--gbg)">Git</div><div class="fln"></div></div>
+          <div class="flc"><div class="flt" style="color:var(--green)">Day 1 — Git ✓</div><div class="fld">Git runs on Linux. GitHub Actions runs on Linux runners. All git operations happen in a Linux shell.</div></div>
+        </div>
+        <div class="fl">
+          <div class="fll"><div class="fc" style="border-color:var(--amber);color:var(--amber);background:var(--abg)">Linux</div><div class="fln"></div></div>
+          <div class="flc"><div class="flt" style="color:var(--amber)">Day 2 — Linux ← You are here</div><div class="fld">The OS that runs everything. File system, permissions, processes, networking, shell scripting. <b>Foundation of the entire stack.</b></div></div>
+        </div>
+        <div class="fl">
+          <div class="fll"><div class="fc" style="border-color:var(--blue);color:var(--blue);background:var(--bbg)">Docker</div><div class="fln"></div></div>
+          <div class="flc"><div class="flt" style="color:var(--blue)">Upcoming — Docker</div><div class="fld">Docker containers are Linux processes with isolated filesystems and namespaces. <b>Docker IS Linux under the hood.</b> Your Linux knowledge directly applies.</div></div>
+        </div>
+        <div class="fl">
+          <div class="fll"><div class="fc" style="border-color:var(--purple);color:var(--purple);background:var(--pbg)">K8s</div><div class="fln"></div></div>
+          <div class="flc"><div class="flt" style="color:var(--purple)">Upcoming — Kubernetes</div><div class="fld">Kubernetes manages Linux containers at scale. Every node in a K8s cluster is a Linux machine. SSH, permissions, processes — all Linux concepts apply.</div></div>
+        </div>
+        <div class="fl">
+          <div class="fll"><div class="fc" style="border-color:var(--cyan);color:var(--cyan);background:var(--cbg)">Cloud</div></div>
+          <div class="flc"><div class="flt" style="color:var(--cyan)">Upcoming — Cloud (AWS / Azure / GCP)</div><div class="fld">Cloud VMs are Linux servers. AWS EC2 instance = a Linux machine. You SSH in and manage it with Linux commands.</div></div>
+        </div>
+      </div>
+      <div class="box ba" style="margin-top:8px">🚀 <b>The chain:</b> Linux → Docker → Kubernetes → Cloud → CI/CD → Full DevOps Engineer. It all starts here on Day 2.</div>
+      <div class="box bg" style="margin-top:8px">💡 <b>Daily habit:</b> Use Linux terminal for everything — even on your personal laptop (WSL on Windows, Terminal on Mac). The more time in the terminal, the more comfortable you become. Comfort = speed = confidence.</div>
+    </div>
+  </div>
+
+  <div class="tags">
+    <span class="tag ta">#30DaysOfDevOps</span>
+    <span class="tag ta">#Day2</span>
+    <span class="tag tg">#Linux</span>
+    <span class="tag tb">#DevOps</span>
+    <span class="tag tc">#SysAdmin</span>
+    <span class="tag tp">#LearnInPublic</span>
+    <span class="tag tg">#100DaysOfCode</span>
+    <span class="tag tb">#OpenSource</span>
+  </div>
+
+  <div class="footer">day_02 notes — <span>#30DaysOfDevOps</span> — linux theory complete ✓</div>
+</div>
+</body>
+</html>
