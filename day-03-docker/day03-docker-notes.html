@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day 03 — Docker Notes</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Sora:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0D1117;--bg2:#161B22;--bg3:#21262D;--border:#30363D;--text:#E6EDF3;--text2:#C9D1D9;--muted:#8B949E;--dim:#484F58;--green:#3FB950;--gbg:#0D1F12;--gbr:#238636;--blue:#58A6FF;--bbg:#0C2340;--bbr:#1F6FEB;--amber:#E3B341;--abg:#1C1700;--abr:#9E6A03;--purple:#BC8CFF;--pbg:#1A1040;--pbr:#6E40C9;--red:#FF7B72;--rbg:#1C0A09;--rbr:#8B2020;--cyan:#39D5D5;--cbg:#0A1F1F;--cbr:#1B6F6F;}
+body{font-family:'Sora',sans-serif;background:#080C10;color:var(--text);padding:40px 20px;line-height:1.8}
+.wrap{max-width:740px;margin:0 auto}
+.header{background:var(--bg2);border:0.5px solid var(--border);border-radius:20px;padding:32px 32px 24px;margin-bottom:16px;position:relative;overflow:hidden}
+.header::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#58A6FF,#3FB950,#BC8CFF,#E3B341)}
+.hdr-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px}
+.day-tag{display:inline-flex;align-items:center;gap:6px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--blue);background:var(--bbg);border:0.5px solid var(--bbr);border-radius:999px;padding:4px 12px}
+.day-dot{width:6px;height:6px;border-radius:50%;background:var(--blue);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+.prog{display:flex;gap:3px}
+.pg{width:18px;height:3px;border-radius:2px;background:var(--border)}
+.pg.d{background:var(--green)}.pg.c{background:var(--blue)}
+.header h1{font-size:30px;font-weight:600;margin-bottom:6px}
+.header h1 span{color:var(--blue)}
+.header p{font-size:14px;color:var(--muted)}
+.toc{display:flex;flex-wrap:wrap;gap:7px;margin-top:16px;padding-top:16px;border-top:0.5px solid var(--border)}
+.ti{font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--muted);background:var(--bg3);border:0.5px solid var(--border);border-radius:6px;padding:3px 10px}
+.nc{background:var(--bg2);border:0.5px solid var(--border);border-radius:14px;margin-bottom:14px;overflow:hidden}
+.nc-hdr{display:flex;align-items:center;gap:10px;padding:14px 20px;border-bottom:0.5px solid var(--border)}
+.nc-num{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--dim);min-width:24px}
+.nc-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.nc-title{font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;font-family:'JetBrains Mono',monospace;flex:1}
+.nc-body{padding:20px}
+p.s{font-size:14px;color:var(--muted);line-height:1.85;margin-bottom:12px}
+p.s:last-child{margin-bottom:0}
+p.s b{color:var(--text2);font-weight:500}
+h3{font-size:13px;font-weight:500;color:var(--text);margin:18px 0 8px;display:flex;align-items:center;gap:8px}
+h3:first-child{margin-top:0}
+h3 .bar{width:3px;height:13px;border-radius:2px;flex-shrink:0;display:inline-block}
+.box{border-radius:8px;padding:12px 16px;margin:10px 0;font-size:13px;line-height:1.75}
+.box b{font-weight:600}
+.bg{background:var(--gbg);border-left:3px solid var(--green);color:#4AC261}
+.bb{background:var(--bbg);border-left:3px solid var(--blue);color:#79C0FF}
+.ba{background:var(--abg);border-left:3px solid var(--amber);color:var(--amber)}
+.bp{background:var(--pbg);border-left:3px solid var(--purple);color:var(--purple)}
+.br{background:var(--rbg);border-left:3px solid var(--red);color:var(--red)}
+.bc{background:var(--cbg);border-left:3px solid var(--cyan);color:var(--cyan)}
+.dl{display:flex;flex-direction:column;gap:8px;margin:10px 0}
+.di{background:var(--bg);border:0.5px solid var(--border);border-radius:8px;padding:12px 14px;display:flex;gap:12px;align-items:flex-start}
+.dk{font-family:'JetBrains Mono',monospace;font-size:11.5px;font-weight:500;min-width:120px;flex-shrink:0;padding-top:1px}
+.dv{font-size:13px;color:var(--muted);line-height:1.65}
+.dv b{color:var(--text2);font-weight:500}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}
+@media(max-width:520px){.two{grid-template-columns:1fr}}
+.three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:10px 0}
+@media(max-width:560px){.three{grid-template-columns:1fr 1fr}}
+.cc{background:var(--bg);border:0.5px solid var(--border);border-radius:10px;padding:14px 16px}
+.ct{font-size:13px;font-weight:600;margin-bottom:6px}
+.cb{font-size:12px;color:var(--muted);line-height:1.7}
+.cb b{color:var(--text2);font-weight:500}
+.cmd-block{background:#010409;border:0.5px solid var(--border);border-radius:10px;overflow:hidden;margin:10px 0}
+.cb-hdr{background:var(--bg2);padding:7px 14px;font-size:10px;color:var(--dim);font-family:'JetBrains Mono',monospace;border-bottom:0.5px solid var(--border);display:flex;align-items:center;gap:6px}
+.cb-dot{width:6px;height:6px;border-radius:50%}
+.cb-body{padding:12px 14px}
+.cr{display:flex;gap:8px;padding:3px 0;align-items:baseline;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.6}
+.pmt{color:var(--green);flex-shrink:0}
+.kw{color:#FF7B72}
+.sub{color:#FFA657}
+.val{color:#A5D6FF}
+.str{color:#79C0FF}
+.cmt{color:var(--dim);font-size:11px;font-family:'JetBrains Mono',monospace}
+.flow{display:flex;flex-direction:column;gap:0;margin:12px 0}
+.fl{display:flex;gap:14px;align-items:flex-start}
+.fll{display:flex;flex-direction:column;align-items:center}
+.fc{width:30px;height:30px;border-radius:50%;border:1.5px solid;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;font-family:'JetBrains Mono',monospace;flex-shrink:0;text-align:center;line-height:1.2}
+.fln{width:1.5px;flex:1;min-height:18px;background:var(--border);margin:4px 0}
+.fl:last-child .fln{display:none}
+.flc{padding:3px 0 18px}
+.flt{font-size:13px;font-weight:500;color:var(--text);margin-bottom:4px}
+.fld{font-size:12px;color:var(--muted);line-height:1.65}
+.fld b{color:var(--text2);font-weight:500}
+.cheat-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:10px 0}
+.ci{background:var(--bg);border:0.5px solid var(--border);border-radius:8px;padding:8px 10px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.ci-cmd{font-family:'JetBrains Mono',monospace;font-size:11px;color:#79C0FF;flex-shrink:0}
+.ci-desc{font-size:10px;color:var(--dim);text-align:right}
+.tags{display:flex;flex-wrap:wrap;gap:7px;padding-top:16px;border-top:0.5px solid var(--border);margin-top:16px}
+.tag{font-size:10px;padding:3px 10px;border-radius:999px;border:0.5px solid;font-family:'JetBrains Mono',monospace}
+.tg{color:var(--green);border-color:var(--gbr);background:var(--gbg)}
+.tb{color:var(--blue);border-color:var(--bbr);background:var(--bbg)}
+.ta{color:var(--amber);border-color:var(--abr);background:var(--abg)}
+.tp{color:var(--purple);border-color:var(--pbr);background:var(--pbg)}
+.tc{color:var(--cyan);border-color:var(--cbr);background:var(--cbg)}
+.footer{text-align:center;font-size:11px;color:var(--dim);font-family:'JetBrains Mono',monospace;padding:24px 0 0}
+.footer span{color:var(--blue)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="header">
+    <div class="hdr-top">
+      <div class="day-tag"><div class="day-dot"></div>Day 03 / 30</div>
+      <div class="prog">
+        <div class="pg d"></div><div class="pg d"></div><div class="pg c"></div>
+        <div class="pg"></div><div class="pg"></div><div class="pg"></div><div class="pg"></div><div class="pg"></div><div class="pg"></div><div class="pg"></div>
+      </div>
+    </div>
+    <h1>🐳 <span>Docker</span></h1>
+    <p>What containers are, how Docker works, images vs containers, Dockerfile, volumes, networking & docker-compose. Pure concepts — no fluff.</p>
+    <div class="toc">
+      <span class="ti">What is Docker</span>
+      <span class="ti">VM vs Container</span>
+      <span class="ti">Images & Containers</span>
+      <span class="ti">Dockerfile</span>
+      <span class="ti">Volumes</span>
+      <span class="ti">Networking</span>
+      <span class="ti">Docker Compose</span>
+      <span class="ti">Docker in DevOps</span>
+    </div>
+  </div>
+
+  <!-- 01 What is Docker -->
+  <div class="nc">
+    <div class="nc-hdr">
+      <span class="nc-num">01</span>
+      <div class="nc-dot" style="background:var(--blue)"></div>
+      <span class="nc-title" style="color:var(--blue)">What is Docker?</span>
+    </div>
+    <div class="nc-body">
+      <p class="s">Docker is a platform that lets you <b>package your application along with everything it needs</b> — code, runtime, libraries, configs — into a single unit called a <b>container</b>. That container runs the same way everywhere — your laptop, a server, the cloud.</p>
+      <p class="s">Created in <b>2013 by Solomon Hykes</b> at dotCloud. Open-sourced and became one of the fastest-adopted tools in software history. Today it's the standard for packaging and shipping applications.</p>
+      <div class="box bb">💡 Simple definition: Docker is a "shipping container" for software. Just like a physical container carries goods safely across ships/trucks/trains, Docker carries your app safely across machines and environments.</div>
+      <h3><span class="bar" style="background:var(--blue)"></span>The problem Docker solves</h3>
+      <p class="s"><b>"It works on my machine"</b> — the classic developer problem. Code runs fine locally but fails on the server. Reason: different OS, different library versions, different configs. Docker eliminates this by bundling everything together.</p>
+      <div class="two">
+        <div class="cc"><div class="ct" style="color:var(--red)">Without Docker</div><div class="cb">App works locally. Fails on server. Hours debugging "missing dependency". Different Python versions. Different OS configs. Painful deployments.</div></div>
+        <div class="cc"><div class="ct" style="color:var(--green)">With Docker</div><div class="cb">Package once. Run anywhere. Same container on laptop → server → AWS → CI/CD pipeline. <b>Zero "works on my machine" problems.</b></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 02 VM vs Container -->
+  <div class="nc">
+    <div class="nc-hdr">
+      <span class="nc-num">02</span>
+      <div class="nc-dot" style="background:var(--amber)"></div>
+      <span class="nc-title" style="color:var(--amber)">VM vs Container</span>
+    </div>
+    <div class="nc-body">
+      <p class="s">Both VMs and containers isolate applications — but they do it very differently.</p>
+      <div class="two">
+        <div class="cc">
+          <div class="ct" style="color:var(--amber)">Virtual Machine (VM)</div>
+          <div class="cb">Has its own <b>full OS</b> — kernel, OS files, everything. Runs on top of a Hypervisor (VMware, VirtualBox). Heavy — takes GBs of disk space and minutes to start. Strong isolation.</div>
+        </div>
+        <div class="cc">
+          <div class="ct" style="color:var(--blue)">Container</div>
+          <div class="cb">Shares the <b>host OS kernel</b>. Only packages the app + its dependencies. Lightweight — MBs of disk, starts in seconds. Slightly less isolated but far more efficient.</div>
+        </div>
+      </div>
+      <svg width="100%" viewBox="0 0 680 200" style="display:block;margin:14px 0">
+        <!-- VM side -->
+        <rect x="10" y="10" width="310" height="180" rx="8" fill="#1C1700" stroke="#9E6A03" stroke-width="0.5"/>
+        <text x="165" y="32" text-anchor="middle" font-size="11" fill="#E3B341" font-family="JetBrains Mono,monospace" font-weight="500">Virtual Machine</text>
+        <rect x="20" y="40" width="135" height="55" rx="5" fill="#21262D" stroke="#30363D" stroke-width="0.5"/>
+        <text x="87" y="60" text-anchor="middle" font-size="10" fill="#8B949E" font-family="Sora,sans-serif">App A</text>
+        <text x="87" y="75" text-anchor="middle" font-size="9" fill="#484F58" font-family="Sora,sans-serif">+ Guest OS</text>
+        <text x="87" y="87" text-anchor="middle" font-size="9" fill="#484F58" font-family="Sora,sans-serif">+ Libs</text>
+        <rect x="165" y="40" width="145" height="55" rx="5" fill="#21262D" stroke="#30363D" stroke-width="0.5"/>
+        <text x="237" y="60" text-anchor="middle" font-size="10" fill="#8B949E" font-family="Sora,sans-serif">App B</text>
+        <text x="237" y="75" text-anchor="middle" font-size="9" fill="#484F58" font-family="Sora,sans-serif">+ Guest OS</text>
+        <text x="237" y="87" text-anchor="middle" font-size="9" fill="#484F58" font-family="Sora,sans-serif">+ Libs</text>
+        <rect x="20" y="105" width="290" height="28" rx="5" fill="#1F6FEB" fill-opacity="0.15" stroke="#1F6FEB" stroke-width="0.5"/>
+        <text x="165" y="123" text-anchor="middle" font-size="10" fill="#58A6FF" font-family="JetBrains Mono,monospace">Hypervisor</text>
+        <rect x="20" y="143" width="290" height="28" rx="5" fill="#21262D" stroke="#30363D" stroke-width="0.5"/>
+        <text x="165" y="162" text-anchor="middle" font-size="10" fill="#8B949E" font-family="JetBrains Mono,monospace">Host OS + Hardware</text>
+        <!-- Docker side -->
+        <rect x="360" y="10" width="310" height="180" rx="8" fill="#0C2340" stroke="#1F6FEB" stroke-width="0.5"/>
+        <text x="515" y="32" text-anchor="middle" font-size="11" fill="#58A6FF" font-family="JetBrains Mono,monospace" font-weight="500">Docker Containers</text>
+        <rect x="370" y="40" width="135" height="40" rx="5" fill="#21262D" stroke="#30363D" stroke-width="0.5"/>
+        <text x="437" y="57" text-anchor="middle" font-size="10" fill="#8B949E" font-family="Sora,sans-serif">App A + Libs</text>
+        <text x="437" y="72" text-anchor="middle" font-size="9" fill="#484F58" font-family="Sora,sans-serif">(no OS needed)</text>
+        <rect x="515" y="40" width="145" height="40" rx="5" fill="#21262D" stroke="#30363D" stroke-width="0.5"/>
+        <text x="587" y="57" text-anchor="middle" font-size="10" fill="#8B949E" font-family="Sora,sans-serif">App B + Libs</text>
+        <text x="587" y="72" text-anchor="middle" font-size="9" fill="#484F58" font-family="Sora,sans-serif">(no OS needed)</text>
+        <rect x="370" y="90" width="290" height="28" rx="5" fill="#238636" fill-opacity="0.15" stroke="#238636" stroke-width="0.5"/>
+        <text x="515" y="108" text-anchor="middle" font-size="10" fill="#3FB950" font-family="JetBrains Mono,monospace">Docker Engine (shared kernel)</text>
+        <rect x="370" y="128" width="290" height="44" rx="5" fill="#21262D" stroke="#30363D" stroke-width="0.5"/>
+        <text x="515" y="148" text-anchor="middle" font-size="10" fill="#8B949E" font-family="JetBrains Mono,monospace">Host OS + Hardware</text>
+        <text x="515" y="163" text-anchor="middle" font-size="9" fill="#484F58" font-family="Sora,sans-serif">(shared with containers)</text>
+      </svg>
+      <div class="box bg">⚡ Key takeaway: A VM boots a whole OS per app — heavy. A container shares the host kernel — lightweight. 10 containers can run on a machine where only 2-3 VMs would fit.</div>
+    </div>
+  </div>
+
+  <!-- 03 Images & Containers -->
+  <div class="nc">
+    <div class="nc-hdr">
+      <span class="nc-num">03</span>
+      <div class="nc-dot" style="background:var(--green)"></div>
+      <span class="nc-title" style="color:var(--green)">Images & Containers</span>
+    </div>
+    <div class="nc-body">
+      <h3><span class="bar" style="background:var(--green)"></span>Docker Image</h3>
+      <p class="s">A <b>read-only template</b> that contains everything needed to run an app — OS layer, runtime, libraries, app code. Think of it as a <b>blueprint or recipe</b>. Images are built from a Dockerfile. They are stored in registries like <b>Docker Hub</b>.</p>
+      <h3><span class="bar" style="background:var(--blue)"></span>Docker Container</h3>
+      <p class="s">A <b>running instance</b> of an image. Like a class vs object in programming — image is the class, container is the object. You can run multiple containers from the same image. Containers are <b>isolated</b> from each other and the host.</p>
+      <div class="box ba">📸 Analogy: Image = a cookie cutter. Container = the actual cookie. One cutter, many cookies. Change the cutter (image) and all future cookies change.</div>
+      <h3><span class="bar" style="background:var(--purple)"></span>Docker Hub — the registry</h3>
+      <p class="s">Like GitHub for Docker images. Thousands of official images available — <b>nginx</b>, <b>postgres</b>, <b>node</b>, <b>python</b>, <b>ubuntu</b>. Pull and run instantly. Push your own images too.</p>
+      <h3><span class="bar" style="background:var(--cyan)"></span>Image layers — how images are built</h3>
+      <p class="s">Images are made of <b>layers</b> — each instruction in a Dockerfile adds a layer. Layers are cached and reused. If only your app code changes, Docker reuses all previous layers (OS, deps) — making builds fast.</p>
+      <div class="flow">
+        <div class="fl"><div class="fll"><div class="fc" style="color:var(--dim);border-color:var(--border)">L1</div><div class="fln"></div></div><div class="flc"><div class="flt">Base OS layer</div><div class="fld">ubuntu:22.04 — the foundation. Cached forever once pulled.</div></div></div>
+        <div class="fl"><div class="fll"><div class="fc" style="color:#79C0FF;border-color:var(--bbr)">L2</div><div class="fln"></div></div><div class="flc"><div class="flt">Runtime layer</div><div class="fld">Install Python / Node / Java. Cached unless runtime changes.</div></div></div>
+        <div class="fl"><div class="fll"><div class="fc" style="color:#4AC261;border-color:var(--gbr)">L3</div><div class="fln"></div></div><div class="flc"><div class="flt">Dependencies layer</div><div class="fld">pip install / npm install. Cached unless requirements.txt changes.</div></div></div>
+        <div class="fl"><div class="fll"><div class="fc" style="color:var(--amber);border-color:var(--abr)">L4</div></div><div class="flc"><div class="flt">App code layer</div><div class="fld">COPY your app code. This changes most often — only this layer rebuilds.</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 04 Dockerfile -->
+  <div class="nc">
+    <div class="nc-hdr">
+      <span class="nc-num">04</span>
+      <div class="nc-dot" style="background:var(--purple)"></div>
+      <span class="nc-title" style="color:var(--purple)">Dockerfile</span>
+    </div>
+    <div class="nc-body">
+      <p class="s">A <b>Dockerfile</b> is a text file with instructions to build a Docker image. Each instruction becomes a layer. Docker reads it top to bottom and builds the image.</p>
+      <div class="cmd-block">
+        <div class="cb-hdr"><div class="cb-dot" style="background:var(--purple)"></div>Dockerfile — Python app example</div>
+        <div class="cb-body">
+          <div class="cr"><span class="kw">FROM</span> <span class="str">python:3.11-slim</span> <span class="cmt"># base image — slim = smaller size</span></div>
+          <div class="cr"><span class="kw">WORKDIR</span> <span class="val">/app</span> <span class="cmt"># set working directory inside container</span></div>
+          <div class="cr"><span class="kw">COPY</span> <span class="val">requirements.txt</span> <span class="val">.</span> <span class="cmt"># copy deps file first (layer caching!)</span></div>
+          <div class="cr"><span class="kw">RUN</span> <span class="sub">pip install</span> <span class="val">-r requirements.txt</span> <span class="cmt"># install deps</span></div>
+          <div class="cr"><span class="kw">COPY</span> <span class="val">.</span> <span class="val">.</span> <span class="cmt"># copy rest of app code</span></div>
+          <div class="cr"><span class="kw">EXPOSE</span> <span class="str">8000</span> <span class="cmt"># document which port app uses</span></div>
+          <div class="cr"><span class="kw">CMD</span> <span class="str">["python", "app.py"]</span> <span class="cmt"># default command when container starts</span></div>
+        </div>
+      </div>
+      <h3><span class="bar" style="background:var(--purple)"></span>Key Dockerfile instructions</h3>
+      <div class="dl">
+        <div class="di"><span class="dk" style="color:#BC8CFF">FROM</span><div class="dv">Base image to build on. Every Dockerfile starts with FROM. <b>FROM scratch</b> = empty base.</div></div>
+        <div class="di"><span class="dk" style="color:#FF7B72">RUN</span><div class="dv">Execute command during build. Use for installing packages. Each RUN = new layer.</div></div>
+        <div class="di"><span class="dk" style="color:#58A6FF">COPY</span><div class="dv">Copy files from host into image. <b>COPY src dest</b>. Use ADD only for archives/URLs.</div></div>
+        <div class="di"><span class="dk" style="color:#3FB950">WORKDIR</span><div class="dv">Set working directory. All subsequent commands run from here. Like <b>cd</b>.</div></div>
+        <div class="di"><span class="dk" style="color:#E3B341">ENV</span><div class="dv">Set environment variables inside container. <b>ENV PORT=8000</b></div></div>
+        <div class="di"><span class="dk" style="color:#39D5D5">EXPOSE</span><div class="dv">Document which port the app listens on. Doesn't actually open port — just metadata.</div></div>
+        <div class="di"><span class="dk" style="color:#FFA657">CMD</span><div class="dv">Default command when container starts. Can be overridden. Only one CMD per Dockerfile.</div></div>
+        <div class="di"><span class="dk" style="color:#FFA657">ENTRYPOINT</span><div class="dv">Like CMD but cannot be easily overridden. Use for fixed executable, CMD for arguments.</div></div>
+      </div>
+      <div class="box br">⚠️ CMD vs ENTRYPOINT: CMD is the default command — easy to override at runtime. ENTRYPOINT locks the executable. Common pattern: ENTRYPOINT for the binary, CMD for default args.</div>
+    </div>
+  </div>
+
+  <!-- 05 Docker Commands -->
+  <div class="nc">
+    <div class="nc-hdr">
+      <span class="nc-num">05</span>
+      <div class="nc-dot" style="background:var(--green)"></div>
+      <span class="nc-title" style="color:var(--green)">Essential Docker Commands</span>
+    </div>
+    <div class="nc-body">
+      <div class="cmd-block">
+        <div class="cb-hdr"><div class="cb-dot" style="background:var(--green)"></div>build & run</div>
+        <div class="cb-body">
+          <div class="cr"><span class="pmt">$</span><span><span class="kw">docker</span> <span class="sub">build</span> <span class="val">-t</span> <span class="str">myapp:v1</span> <span class="val">.</span> <span class="cmt"># build image from Dockerfile</span></span></div>
+          <div class="cr"><span class="pmt">$</span><span><span class="kw">docker</span> <span class="sub">run</span> <span class="val">-d -p 8080:8000</span> <span class="str">myapp:v1</span> <span class="cmt"># run container detached</span></span></div>
+          <div class="cr"><span class="pmt">$</span><span><span class="kw">docker</span> <span class="sub">run</span> <span class="val">-it</span> <span class="str">ubuntu</span> <span class="val">bash</span> <span class="cmt"># interactive shell inside container</span></span></div>
+          <div class="cr"><span class="pmt">$</span><span><span class="kw">docker</span> <span class="sub">run</span> <span class="val">--name mycontainer</span> <span class="str">myapp:v1</span> <span class="cmt"># give container a name</span></span></div>
+        </div>
+      </div>
+      <div class="cmd-block">
+        <div class="cb-hdr"><div class="cb-dot" style="background:var(--blue)"></div>manage containers</div>
+        <div class="cb-body">
+          <div class="cr"><span class="pmt">$</span><span><span class="kw">docker</span> <span class="sub">ps</span> <span class="cmt"># list running containers</span></span></div>
+          <div class="cr"><span class="pmt">$</span><span><span class="kw">docker</span> <span class="sub">ps</span> <span class="val">-a</span> <span class="cmt"># list all containers (including stopped)</span></span></div>
+          <div class="cr"><span class="pmt">$</span><span><span class="kw">docker</span> <span class="sub">stop</span> <span class="val">mycontainer</span> <span class="cmt"># graceful stop</span></span></div>
+          <div class="cr"><span class="pmt">$</span><span><span class="kw">docker</span> <span class="sub">rm</span> <span class="val">mycontainer</span> <span class="cmt"># remove container</span></span></div>
+          <div class="cr"><span class="pmt">$</span><span><span class="kw">docker</span> <span class="sub">logs</span> <span class="val">mycontainer</span> <span class="cmt"># see container logs</span></span></div>
+          <div class="cr"><span class="pmt">$</span><span><span class="kw">docker</span> <span class="sub">exec</span> <span class="val">-it</span> <span class="str">mycontainer</span> <span class="val">bash</span> <span class="cmt"># shell into running container</span></span></div>
+        </div>
+      </div>
+      <div class="cmd-block">
+        <div class="cb-hdr"><div class="cb-dot" style="background:var(--purple)"></div>images</div>
+        <div class="cb-body">
+          <div class="cr"><span class="pmt">$</span><span><span class="kw">docker</span> <span class="sub">images</span> <span class="cmt"># list local images</span></span></div>
+          <div class="cr"><span class="pmt">$</span><span><span class="kw">docker</span> <span class="sub">pull</span> <span class="str">nginx:latest</span> <span class="cmt"># download image from Docker Hub</span></span></div>
+          <div class="cr"><span class="pmt">$</span><span><span class="kw">docker</span> <span class="sub">push</span> <span class="str">username/myapp:v1</span> <span class="cmt"># push image to Docker Hub</span></span></div>
+          <div class="cr"><span class="pmt">$</span><span><span class="kw">docker</span> <span class="sub">rmi</span> <span class="val">myapp:v1</span> <span class="cmt"># remove image</span></span></div>
+          <div class="cr"><span class="pmt">$</span><span><span class="kw">docker</span> <span class="sub">system prune</span> <span class="cmt"># cleanup unused containers/images</span></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 06 Volumes -->
+  <div class="nc">
+    <div class="nc-hdr">
+      <span class="nc-num">06</span>
+      <div class="nc-dot" style="background:var(--amber)"></div>
+      <span class="nc-title" style="color:var(--amber)">Volumes — Persistent Storage</span>
+    </div>
+    <div class="nc-body">
+      <p class="s">By default, containers are <b>stateless</b> — when a container stops, all data inside it is lost. This is a problem for databases, logs, uploads. <b>Volumes</b> solve this by storing data outside the container on the host machine.</p>
+      <div class="box ba">💾 Analogy: Container = a hotel room. Volumes = your personal locker outside the room. Even if you check out (container stops), your belongings (data) are safe in the locker.</div>
+      <h3><span class="bar" style="background:var(--amber)"></span>Types of mounts</h3>
+      <div class="dl">
+        <div class="di"><span class="dk" style="color:var(--amber)">Named Volume</span><div class="dv">Managed by Docker. <b>docker volume create mydata</b>. Best for production databases. Docker decides the location on host.</div></div>
+        <div class="di"><span class="dk" style="color:var(--blue)">Bind Mount</span><div class="dv">You specify exact host path. Maps <b>host folder → container folder</b>. Great for development — edit code on host, see changes instantly in container.</div></div>
+        <div class="di"><span class="dk" style="color:var(--dim)">tmpfs Mount</span><div class="dv">In-memory only. Not persisted. Useful for sensitive temporary data. Linux only.</div></div>
+      </div>
+      <div class="cmd-block">
+        <div class="cb-hdr"><div class="cb-dot" style="background:var(--amber)"></div>volume commands</div>
+        <div class="cb-body">
+          <div class="cr"><span class="pmt">$</span><span><span class="kw">docker</span> <span class="sub">volume create</span> <span class="str">mydata</span></span></div>
+          <div class="cr"><span class="pmt">$</span><span><span class="kw">docker</span> <span class="sub">run</span> <span class="val">-v mydata:/app/data</span> <span class="str">myapp</span> <span class="cmt"># named volume</span></span></div>
+          <div class="cr"><span class="pmt">$</span><span><span class="kw">docker</span> <span class="sub">run</span> <span class="val">-v /home/user/code:/app</span> <span class="str">myapp</span> <span class="cmt"># bind mount</span></span></div>
+          <div class="cr"><span class="pmt">$</span><span><span class="kw">docker</span> <span class="sub">volume ls</span> <span class="cmt"># list all volumes</span></span></div>
+          <div class="cr"><span class="pmt">$</span><span><span class="kw">docker</span> <span class="sub">volume rm</span> <span class="str">mydata</span></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 07 Networking -->
+  <div class="nc">
+    <div class="nc-hdr">
+      <span class="nc-num">07</span>
+      <div class="nc-dot" style="background:var(--cyan)"></div>
+      <span class="nc-title" style="color:var(--cyan)">Docker Networking</span>
+    </div>
+    <div class="nc-body">
+      <p class="s">Containers are isolated — they can't talk to each other by default. Docker networking allows containers to <b>communicate securely</b> with each other and the outside world.</p>
+      <h3><span class="bar" style="background:var(--cyan)"></span>Port mapping — -p flag</h3>
+      <p class="s"><b>-p hostPort:containerPort</b> — maps a port on the host to a port inside the container. Example: <b>-p 8080:80</b> means visiting localhost:8080 sends traffic to port 80 inside the container.</p>
+      <h3><span class="bar" style="background:var(--cyan)"></span>Network types</h3>
+      <div class="dl">
+        <div class="di"><span class="dk" style="color:var(--blue)">bridge (default)</span><div class="dv">Default network. Containers can talk to each other by IP. Not by name (use custom bridge for that). External access via port mapping.</div></div>
+        <div class="di"><span class="dk" style="color:var(--green)">custom bridge</span><div class="dv">User-created network. Containers can <b>refer to each other by name</b>. Best practice — use this instead of default bridge. Automatic DNS resolution.</div></div>
+        <div class="di"><span class="dk" style="color:var(--amber)">host</span><div class="dv">Container shares host's network directly. No isolation. No port mapping needed. Only on Linux.</div></div>
+        <div class="di"><span class="dk" style="color:var(--dim)">none</span><div class="dv">No networking. Completely isolated. For high-security workloads.</div></div>
+      </div>
+      <div class="cmd-block">
+        <div class="cb-hdr"><div class="cb-dot" style="background:var(--cyan)"></div>network commands</div>
+        <div class="cb-body">
+          <div class="cr"><span class="pmt">$</span><span><span class="kw">docker</span> <span class="sub">network create</span> <span class="str">mynetwork</span></span></div>
+          <div class="cr"><span class="pmt">$</span><span><span class="kw">docker</span> <span class="sub">run</span> <span class="val">--network mynetwork</span> <span class="str">myapp</span></span></div>
+          <div class="cr"><span class="pmt">$</span><span><span class="kw">docker</span> <span class="sub">network ls</span> <span class="cmt"># list networks</span></span></div>
+          <div class="cr"><span class="pmt">$</span><span><span class="kw">docker</span> <span class="sub">network inspect</span> <span class="str">mynetwork</span></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 08 Docker Compose -->
+  <div class="nc">
+    <div class="nc-hdr">
+      <span class="nc-num">08</span>
+      <div class="nc-dot" style="background:var(--blue)"></div>
+      <span class="nc-title" style="color:var(--blue)">Docker Compose</span>
+    </div>
+    <div class="nc-body">
+      <p class="s">Real apps have <b>multiple services</b> — web server, database, cache (Redis), message queue. Running and connecting all these manually is painful. <b>Docker Compose</b> lets you define all services in one YAML file and start them all with a single command.</p>
+      <div class="box bb">🎻 Analogy: If Docker is a musician, Docker Compose is the conductor — it coordinates all musicians (containers) to play together in harmony.</div>
+      <div class="cmd-block">
+        <div class="cb-hdr"><div class="cb-dot" style="background:var(--blue)"></div>docker-compose.yml — web app + database</div>
+        <div class="cb-body">
+          <div class="cr"><span style="color:#E3B341;font-family:'JetBrains Mono',monospace;font-size:12px">version:</span> <span class="str">'3.8'</span></div>
+          <div class="cr"><span style="color:#E3B341;font-family:'JetBrains Mono',monospace;font-size:12px">services:</span></div>
+          <div class="cr" style="padding-left:16px"><span style="color:#BC8CFF;font-family:'JetBrains Mono',monospace;font-size:12px">web:</span></div>
+          <div class="cr" style="padding-left:32px"><span style="color:#79C0FF;font-family:'JetBrains Mono',monospace;font-size:12px">build: .</span></div>
+          <div class="cr" style="padding-left:32px"><span style="color:#79C0FF;font-family:'JetBrains Mono',monospace;font-size:12px">ports:</span></div>
+          <div class="cr" style="padding-left:48px"><span style="color:#3FB950;font-family:'JetBrains Mono',monospace;font-size:12px">- "8080:8000"</span></div>
+          <div class="cr" style="padding-left:32px"><span style="color:#79C0FF;font-family:'JetBrains Mono',monospace;font-size:12px">depends_on: [db]</span></div>
+          <div class="cr" style="padding-left:32px"><span style="color:#79C0FF;font-family:'JetBrains Mono',monospace;font-size:12px">environment:</span></div>
+          <div class="cr" style="padding-left:48px"><span style="color:#3FB950;font-family:'JetBrains Mono',monospace;font-size:12px">DB_HOST: db</span> <span class="cmt"># refer to db service by name!</span></div>
+          <div class="cr" style="padding-left:16px"><span style="color:#BC8CFF;font-family:'JetBrains Mono',monospace;font-size:12px">db:</span></div>
+          <div class="cr" style="padding-left:32px"><span style="color:#79C0FF;font-family:'JetBrains Mono',monospace;font-size:12px">image: postgres:15</span></div>
+          <div class="cr" style="padding-left:32px"><span style="color:#79C0FF;font-family:'JetBrains Mono',monospace;font-size:12px">volumes:</span></div>
+          <div class="cr" style="padding-left:48px"><span style="color:#3FB950;font-family:'JetBrains Mono',monospace;font-size:12px">- pgdata:/var/lib/postgresql/data</span></div>
+          <div class="cr" style="padding-left:32px"><span style="color:#79C0FF;font-family:'JetBrains Mono',monospace;font-size:12px">environment:</span></div>
+          <div class="cr" style="padding-left:48px"><span style="color:#3FB950;font-family:'JetBrains Mono',monospace;font-size:12px">POSTGRES_PASSWORD: secret</span></div>
+          <div class="cr"><span style="color:#E3B341;font-family:'JetBrains Mono',monospace;font-size:12px">volumes:</span></div>
+          <div class="cr" style="padding-left:16px"><span style="color:#79C0FF;font-family:'JetBrains Mono',monospace;font-size:12px">pgdata:</span> <span class="cmt"># named volume declaration</span></div>
+        </div>
+      </div>
+      <div class="cmd-block">
+        <div class="cb-hdr"><div class="cb-dot" style="background:var(--green)"></div>compose commands</div>
+        <div class="cb-body">
+          <div class="cr"><span class="pmt">$</span><span><span class="kw">docker compose</span> <span class="sub">up</span> <span class="val">-d</span> <span class="cmt"># start all services (detached)</span></span></div>
+          <div class="cr"><span class="pmt">$</span><span><span class="kw">docker compose</span> <span class="sub">down</span> <span class="cmt"># stop and remove containers</span></span></div>
+          <div class="cr"><span class="pmt">$</span><span><span class="kw">docker compose</span> <span class="sub">logs</span> <span class="val">-f</span> <span class="cmt"># follow logs of all services</span></span></div>
+          <div class="cr"><span class="pmt">$</span><span><span class="kw">docker compose</span> <span class="sub">ps</span> <span class="cmt"># status of all services</span></span></div>
+          <div class="cr"><span class="pmt">$</span><span><span class="kw">docker compose</span> <span class="sub">build</span> <span class="cmt"># rebuild images</span></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 09 Docker in DevOps -->
+  <div class="nc">
+    <div class="nc-hdr">
+      <span class="nc-num">09</span>
+      <div class="nc-dot" style="background:var(--green)"></div>
+      <span class="nc-title" style="color:var(--green)">Docker in DevOps</span>
+    </div>
+    <div class="nc-body">
+      <p class="s">Docker is not just a tool — it's the <b>foundation of modern DevOps</b>. Every major DevOps concept builds on top of containers.</p>
+      <div class="three">
+        <div class="cc"><div class="ct" style="color:var(--blue)">CI/CD Pipelines</div><div class="cb">GitHub Actions, Jenkins — build Docker images on every push. Test in containers. Ship to production.</div></div>
+        <div class="cc"><div class="ct" style="color:var(--purple)">Kubernetes</div><div class="cb">Orchestrates thousands of containers. Docker creates the containers — Kubernetes manages them at scale.</div></div>
+        <div class="cc"><div class="ct" style="color:var(--amber)">Microservices</div><div class="cb">Each microservice = one container. Independent deploy, scale, and update. Docker makes this practical.</div></div>
+        <div class="cc"><div class="ct" style="color:var(--green)">Cloud</div><div class="cb">AWS ECS, Azure Container Instances, GCP Cloud Run — all run Docker containers natively.</div></div>
+        <div class="cc"><div class="ct" style="color:var(--cyan)">Dev Environments</div><div class="cb">Onboard new devs instantly — just docker compose up. No more "install this, configure that" setup docs.</div></div>
+        <div class="cc"><div class="ct" style="color:var(--red)">Security</div><div class="cb">Containers isolate apps from each other. Limit blast radius if one service is compromised.</div></div>
+      </div>
+      <div class="box bg">🚀 Bottom line: Git tracks code. Linux runs servers. Docker packages and ships apps. Together these 3 form the core trio of DevOps. Day 01 + Day 02 + Day 03 = foundation complete.</div>
+    </div>
+  </div>
+
+  <!-- Cheatsheet -->
+  <div class="nc">
+    <div class="nc-hdr">
+      <span class="nc-num">10</span>
+      <div class="nc-dot" style="background:var(--amber)"></div>
+      <span class="nc-title" style="color:var(--amber)">Quick Cheatsheet — All Commands</span>
+    </div>
+    <div class="nc-body">
+      <div class="cheat-grid">
+        <div class="ci"><span class="ci-cmd">docker build -t name .</span><span class="ci-desc">build image</span></div>
+        <div class="ci"><span class="ci-cmd">docker run -d -p 80:80</span><span class="ci-desc">run detached</span></div>
+        <div class="ci"><span class="ci-cmd">docker ps</span><span class="ci-desc">running containers</span></div>
+        <div class="ci"><span class="ci-cmd">docker ps -a</span><span class="ci-desc">all containers</span></div>
+        <div class="ci"><span class="ci-cmd">docker images</span><span class="ci-desc">list images</span></div>
+        <div class="ci"><span class="ci-cmd">docker pull nginx</span><span class="ci-desc">download image</span></div>
+        <div class="ci"><span class="ci-cmd">docker stop name</span><span class="ci-desc">stop container</span></div>
+        <div class="ci"><span class="ci-cmd">docker rm name</span><span class="ci-desc">remove container</span></div>
+        <div class="ci"><span class="ci-cmd">docker rmi image</span><span class="ci-desc">remove image</span></div>
+        <div class="ci"><span class="ci-cmd">docker logs name</span><span class="ci-desc">view logs</span></div>
+        <div class="ci"><span class="ci-cmd">docker exec -it</span><span class="ci-desc">shell inside</span></div>
+        <div class="ci"><span class="ci-cmd">docker volume create</span><span class="ci-desc">create volume</span></div>
+        <div class="ci"><span class="ci-cmd">docker network create</span><span class="ci-desc">create network</span></div>
+        <div class="ci"><span class="ci-cmd">docker compose up -d</span><span class="ci-desc">start all services</span></div>
+        <div class="ci"><span class="ci-cmd">docker compose down</span><span class="ci-desc">stop all</span></div>
+        <div class="ci"><span class="ci-cmd">docker system prune</span><span class="ci-desc">cleanup all</span></div>
+      </div>
+      <!--tag
+      <div class="tags">
+        <span class="tag tg">#30DaysOfDevOps</span>
+        <span class="tag tg">#Day3</span>
+        <span class="tag tb">#Docker</span>
+        <span class="tag tb">#Containers</span>
+        <span class="tag ta">#DevOps</span>
+        <span class="tag tp">#Kubernetes</span>
+        <span class="tag tb">#DockerCompose</span>
+        <span class="tag tg">#100DaysOfCode</span>
+        <span class="tag tc">#LearnInPublic</span>
+        <span class="tag ta">#CloudNative</span>
+      </div>
+      -->
+    </div>
+  </div>
+
+  <div class="footer">30 Days of DevOps &nbsp;·&nbsp; <span>Day 03</span> &nbsp;·&nbsp; Docker &amp; Containers</div>
+</div>
+</body>
+</html>
