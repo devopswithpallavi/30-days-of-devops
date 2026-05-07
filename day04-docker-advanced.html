@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day 04 — Docker Advanced</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Sora:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0D1117;--bg2:#161B22;--bg3:#21262D;--border:#30363D;--text:#E6EDF3;--text2:#C9D1D9;--muted:#8B949E;--dim:#484F58;--green:#3FB950;--gbg:#0D1F12;--gbr:#238636;--blue:#58A6FF;--bbg:#0C2340;--bbr:#1F6FEB;--amber:#E3B341;--abg:#1C1700;--abr:#9E6A03;--purple:#BC8CFF;--pbg:#1A1040;--pbr:#6E40C9;--red:#FF7B72;--rbg:#1C0A09;--rbr:#8B2020;--cyan:#39D5D5;--cbg:#0A1F1F;--cbr:#1B6F6F;}
+body{font-family:'Sora',sans-serif;background:#080C10;color:var(--text);padding:40px 20px;line-height:1.8}
+.wrap{max-width:740px;margin:0 auto}
+.header{background:var(--bg2);border:0.5px solid var(--border);border-radius:20px;padding:32px 32px 24px;margin-bottom:16px;position:relative;overflow:hidden}
+.header::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#58A6FF,#3FB950,#BC8CFF,#E3B341)}
+.hdr-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px}
+.day-tag{display:inline-flex;align-items:center;gap:6px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--blue);background:var(--bbg);border:0.5px solid var(--bbr);border-radius:999px;padding:4px 12px}
+.day-dot{width:6px;height:6px;border-radius:50%;background:var(--blue);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+.prog{display:flex;gap:3px}
+.pg{width:18px;height:3px;border-radius:2px;background:var(--border)}
+.pg.d{background:var(--green)}.pg.c{background:var(--blue)}
+.header h1{font-size:30px;font-weight:600;margin-bottom:6px}
+.header h1 span{color:var(--blue)}
+.header p{font-size:14px;color:var(--muted)}
+.toc{display:flex;flex-wrap:wrap;gap:7px;margin-top:16px;padding-top:16px;border-top:0.5px solid var(--border)}
+.ti{font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--muted);background:var(--bg3);border:0.5px solid var(--border);border-radius:6px;padding:3px 10px}
+.nc{background:var(--bg2);border:0.5px solid var(--border);border-radius:14px;margin-bottom:14px;overflow:hidden}
+.nc-hdr{display:flex;align-items:center;gap:10px;padding:14px 20px;border-bottom:0.5px solid var(--border)}
+.nc-num{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--dim);min-width:24px}
+.nc-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.nc-title{font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;font-family:'JetBrains Mono',monospace;flex:1}
+.nc-body{padding:20px}
+p.s{font-size:14px;color:var(--muted);line-height:1.85;margin-bottom:12px}
+p.s:last-child{margin-bottom:0}
+p.s b{color:var(--text2);font-weight:500}
+h3{font-size:13px;font-weight:500;color:var(--text);margin:18px 0 8px;display:flex;align-items:center;gap:8px}
+h3:first-child{margin-top:0}
+h3 .bar{width:3px;height:13px;border-radius:2px;flex-shrink:0;display:inline-block}
+.box{border-radius:8px;padding:12px 16px;margin:10px 0;font-size:13px;line-height:1.75}
+.box b{font-weight:600}
+.bg{background:var(--gbg);border-left:3px solid var(--green);color:#4AC261}
+.bb{background:var(--bbg);border-left:3px solid var(--blue);color:#79C0FF}
+.ba{background:var(--abg);border-left:3px solid var(--amber);color:var(--amber)}
+.bp{background:var(--pbg);border-left:3px solid var(--purple);color:var(--purple)}
+.br{background:var(--rbg);border-left:3px solid var(--red);color:var(--red)}
+.bc{background:var(--cbg);border-left:3px solid var(--cyan);color:var(--cyan)}
+.dl{display:flex;flex-direction:column;gap:8px;margin:10px 0}
+.di{background:var(--bg);border:0.5px solid var(--border);border-radius:8px;padding:12px 14px;display:flex;gap:12px;align-items:flex-start}
+.dk{font-family:'JetBrains Mono',monospace;font-size:11.5px;font-weight:500;min-width:130px;flex-shrink:0;padding-top:1px}
+.dv{font-size:13px;color:var(--muted);line-height:1.65}
+.dv b{color:var(--text2);font-weight:500}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}
+@media(max-width:520px){.two{grid-template-columns:1fr}}
+.three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:10px 0}
+@media(max-width:560px){.three{grid-template-columns:1fr 1fr}}
+.cc{background:var(--bg);border:0.5px solid var(--border);border-radius:10px;padding:14px 16px}
+.ct{font-size:13px;font-weight:600;margin-bottom:6px}
+.cb{font-size:12px;color:var(--muted);line-height:1.7}
+.cb b{color:var(--text2);font-weight:500}
+.cmd-block{background:#010409;border:0.5px solid var(--border);border-radius:10px;overflow:hidden;margin:10px 0}
+.cb-hdr{background:var(--bg2);padding:7px 14px;font-size:10px;color:var(--dim);font-family:'JetBrains Mono',monospace;border-bottom:0.5px solid var(--border);display:flex;align-items:center;gap:6px}
+.cb-dot{width:6px;height:6px;border-radius:50%}
+.cb-body{padding:12px 14px}
+.cr{display:flex;gap:8px;padding:3px 0;align-items:baseline;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.6}
+.pmt{color:var(--green);flex-shrink:0}
+.kw{color:#FF7B72}
+.sub{color:#FFA657}
+.val{color:#A5D6FF}
+.str{color:#79C0FF}
+.cmt{color:var(--dim);font-size:11px;font-family:'JetBrains Mono',monospace}
+.tbl{width:100%;border-collapse:collapse;margin:10px 0;font-size:13px}
+.tbl th{background:var(--bg3);padding:9px 12px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);border-bottom:0.5px solid var(--border);font-family:'JetBrains Mono',monospace}
+.tbl td{padding:9px 12px;border-bottom:0.5px solid var(--border);color:var(--text2);vertical-align:top;line-height:1.6}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:var(--bg2)}
+.tbl code{font-family:'JetBrains Mono',monospace;font-size:11px;background:var(--bg3);padding:2px 6px;border-radius:4px;color:var(--cyan)}
+.cheat-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:10px 0}
+.ci{background:var(--bg);border:0.5px solid var(--border);border-radius:8px;padding:8px 10px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.ci-cmd{font-family:'JetBrains Mono',monospace;font-size:11px;color:#79C0FF;flex-shrink:0}
+.ci-desc{font-size:10px;color:var(--dim);text-align:right}
+.tags{display:flex;flex-wrap:wrap;gap:7px;padding-top:16px;border-top:0.5px solid var(--border);margin-top:16px}
+.tag{font-size:10px;padding:3px 10px;border-radius:999px;border:0.5px solid;font-family:'JetBrains Mono',monospace}
+.tg{color:var(--green);border-color:var(--gbr);background:var(--gbg)}
+.tb{color:var(--blue);border-color:var(--bbr);background:var(--bbg)}
+.ta{color:var(--amber);border-color:var(--abr);background:var(--abg)}
+.tp{color:var(--purple);border-color:var(--pbr);background:var(--pbg)}
+.tc{color:var(--cyan);border-color:var(--cbr);background:var(--cbg)}
+.footer{text-align:center;font-size:11px;color:var(--dim);font-family:'JetBrains Mono',monospace;padding:24px 0 0}
+.footer span{color:var(--blue)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="header">
+    <div class="hdr-top">
+      <div class="day-tag"><div class="day-dot"></div>Day 04 / 30</div>
+      <div class="prog">
+        <div class="pg d"></div><div class="pg d"></div><div class="pg d"></div>
+        <div class="pg c"></div>
+        <div class="pg"></div><div class="pg"></div><div class="pg"></div><div class="pg"></div><div class="pg"></div><div class="pg"></div>
+      </div>
+    </div>
+    <h1>🐳 Docker <span>Advanced</span></h1>
+    <p>Multi-stage builds, image optimization, layer caching, security, private registry, healthchecks, resource limits &amp; production best practices.</p>
+    <div class="toc">
+      <span class="ti">Multi-Stage Builds</span>
+      <span class="ti">Image Optimization</span>
+      <span class="ti">Layer Caching</span>
+      <span class="ti">Docker Security</span>
+      <span class="ti">Private Registry</span>
+      <span class="ti">Healthchecks</span>
+      <span class="ti">Resource Limits</span>
+      <span class="ti">Best Practices</span>
+      <span class="ti">Cheatsheet</span>
+    </div>
+  </div>
+
+  <!-- 01 -->
+  <div class="nc">
+    <div class="nc-hdr"><span class="nc-num">01</span><div class="nc-dot" style="background:var(--blue)"></div><span class="nc-title" style="color:var(--blue)">Multi-Stage Builds</span></div>
+    <div class="nc-body">
+      <p class="s">A technique where one Dockerfile has <b>multiple FROM instructions</b> — each starts a new build stage. Build your app in one stage (with all build tools) and copy only the final output into a small, clean production image.</p>
+      <div class="box bb">💡 Why it matters: A Node.js app with all dev dependencies = 800MB+. With multi-stage build = ~80MB. <b>10x smaller.</b> Faster to pull, less attack surface, cheaper storage.</div>
+      <div class="two">
+        <div class="cc"><div class="ct" style="color:var(--red)">❌ Without Multi-Stage</div><div class="cb">All build tools in final image. node_modules, compilers included. Image: 800MB–2GB. More attack surface. Slow pipelines.</div></div>
+        <div class="cc"><div class="ct" style="color:var(--green)">✅ With Multi-Stage</div><div class="cb">Only final binary in image. No build tools in production. Image: 50–150MB. Minimal attack surface. Fast deploys.</div></div>
+      </div>
+      <h3><span class="bar" style="background:var(--blue)"></span>Node.js Multi-Stage Example</h3>
+      <div class="cmd-block">
+        <div class="cb-hdr"><div class="cb-dot" style="background:#FF5F56"></div><div class="cb-dot" style="background:#FFBD2E"></div><div class="cb-dot" style="background:#27C93F"></div>&nbsp;Dockerfile</div>
+        <div class="cb-body">
+          <div class="cr"><span class="cmt"># Stage 1: Builder</span></div>
+          <div class="cr"><span class="kw">FROM</span> <span class="val">node:20-alpine</span> <span class="kw">AS</span> <span class="str">builder</span></div>
+          <div class="cr"><span class="kw">WORKDIR</span> <span class="val">/app</span></div>
+          <div class="cr"><span class="kw">COPY</span> <span class="val">package*.json</span> ./</div>
+          <div class="cr"><span class="kw">RUN</span> <span class="sub">npm ci --only=production</span></div>
+          <div class="cr"><span class="kw">COPY</span> <span class="val">. .</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">RUN</span> <span class="sub">npm run build</span></div>
+          <div class="cr"><span class="cmt"># Stage 2: Production</span></div>
+          <div class="cr"><span class="kw">FROM</span> <span class="val">node:20-alpine</span> <span class="kw">AS</span> <span class="str">production</span></div>
+          <div class="cr"><span class="kw">WORKDIR</span> <span class="val">/app</span></div>
+          <div class="cr"><span class="kw">COPY</span> <span class="sub">--from=builder</span> <span class="val">/app/dist</span> ./dist</div>
+          <div class="cr"><span class="kw">COPY</span> <span class="sub">--from=builder</span> <span class="val">/app/node_modules</span> ./node_modules</div>
+          <div class="cr"><span class="kw">USER</span> <span class="val">node</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">EXPOSE</span> <span class="val">3000</span></div>
+          <div class="cr"><span class="kw">CMD</span> [<span class="str">"node"</span>, <span class="str">"dist/index.js"</span>]</div>
+        </div>
+      </div>
+      <h3><span class="bar" style="background:var(--green)"></span>Go Multi-Stage (ultra-small ~5MB)</h3>
+      <div class="cmd-block">
+        <div class="cb-hdr"><div class="cb-dot" style="background:#FF5F56"></div><div class="cb-dot" style="background:#FFBD2E"></div><div class="cb-dot" style="background:#27C93F"></div>&nbsp;Dockerfile</div>
+        <div class="cb-body">
+          <div class="cr"><span class="kw">FROM</span> <span class="val">golang:1.21</span> <span class="kw">AS</span> <span class="str">builder</span></div>
+          <div class="cr"><span class="kw">WORKDIR</span> <span class="val">/app</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">COPY</span> <span class="val">. .</span></div>
+          <div class="cr"><span class="kw">RUN</span> <span class="sub">CGO_ENABLED=0 go build -o myapp .</span></div>
+          <div class="cr"><span class="kw">FROM</span> <span class="val">scratch</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cmt"># zero OS!</span></div>
+          <div class="cr"><span class="kw">COPY</span> <span class="sub">--from=builder</span> <span class="val">/app/myapp</span> /myapp</div>
+          <div class="cr"><span class="kw">CMD</span> [<span class="str">"/myapp"</span>] &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cmt"># ~5MB final image 🔥</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 02 -->
+  <div class="nc">
+    <div class="nc-hdr"><span class="nc-num">02</span><div class="nc-dot" style="background:var(--green)"></div><span class="nc-title" style="color:var(--green)">Image Optimization</span></div>
+    <div class="nc-body">
+      <p class="s">The base image is the biggest factor in image size. Always prefer <b>slim or alpine</b> variants. Never use full OS images in production.</p>
+      <table class="tbl">
+        <tr><th>Base Image</th><th>Size</th><th>Use When</th></tr>
+        <tr><td><code>node:20</code></td><td style="color:var(--red)">~1GB</td><td>Never use in production!</td></tr>
+        <tr><td><code>node:20-slim</code></td><td style="color:var(--amber)">~240MB</td><td>Need some system libraries</td></tr>
+        <tr><td><code>node:20-alpine</code></td><td style="color:var(--green)">~50MB</td><td>Most Node.js apps ✅</td></tr>
+        <tr><td><code>python:3.11-slim</code></td><td style="color:var(--green)">~130MB</td><td>Python apps ✅</td></tr>
+        <tr><td><code>scratch</code></td><td style="color:var(--green)">~0MB</td><td>Go/Rust static binaries ✅</td></tr>
+        <tr><td><code>distroless</code></td><td style="color:var(--green)">~20MB</td><td>Maximum security production ✅</td></tr>
+      </table>
+      <h3><span class="bar" style="background:var(--amber)"></span>Minimize Layers — combine RUN commands</h3>
+      <div class="two">
+        <div class="cmd-block">
+          <div class="cb-hdr"><div class="cb-dot" style="background:#FF5F56"></div>&nbsp;❌ Bad — 3 layers</div>
+          <div class="cb-body">
+            <div class="cr"><span class="kw">RUN</span> <span class="sub">apt-get update</span></div>
+            <div class="cr"><span class="kw">RUN</span> <span class="sub">apt-get install -y curl</span></div>
+            <div class="cr"><span class="kw">RUN</span> <span class="sub">rm -rf /var/lib/apt/lists/*</span></div>
+          </div>
+        </div>
+        <div class="cmd-block">
+          <div class="cb-hdr"><div class="cb-dot" style="background:#27C93F"></div>&nbsp;✅ Good — 1 layer</div>
+          <div class="cb-body">
+            <div class="cr"><span class="kw">RUN</span> <span class="sub">apt-get update && \</span></div>
+            <div class="cr">&nbsp;&nbsp;&nbsp;&nbsp;<span class="sub">apt-get install -y curl && \</span></div>
+            <div class="cr">&nbsp;&nbsp;&nbsp;&nbsp;<span class="sub">rm -rf /var/lib/apt/lists/*</span></div>
+          </div>
+        </div>
+      </div>
+      <h3><span class="bar" style="background:var(--cyan)"></span>.dockerignore — exclude from build context</h3>
+      <div class="cmd-block">
+        <div class="cb-hdr"><div class="cb-dot" style="background:#FF5F56"></div><div class="cb-dot" style="background:#FFBD2E"></div><div class="cb-dot" style="background:#27C93F"></div>&nbsp;.dockerignore</div>
+        <div class="cb-body">
+          <div class="cr"><span class="cmt">node_modules    .git    .env    *.log</span></div>
+          <div class="cr"><span class="cmt">README.md       __pycache__     tests/</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 03 -->
+  <div class="nc">
+    <div class="nc-hdr"><span class="nc-num">03</span><div class="nc-dot" style="background:var(--amber)"></div><span class="nc-title" style="color:var(--amber)">Layer Caching</span></div>
+    <div class="nc-body">
+      <p class="s">Docker caches every layer. If a layer hasn't changed, Docker reuses the cache — <b>builds become extremely fast</b>. Order of Dockerfile instructions matters hugely.</p>
+      <div class="box ba">🔥 Golden Rule: Put things that change <b>rarely at the TOP</b>. Things that change often at the BOTTOM. Maximize cache hits.</div>
+      <div class="two">
+        <div class="cc"><div class="ct" style="color:var(--red)">❌ Cache-busting</div><div class="cb">1. COPY . . ← changes every time<br>2. RUN npm install ← always re-runs<br><br>Every build reinstalls all deps.</div></div>
+        <div class="cc"><div class="ct" style="color:var(--green)">✅ Cache-friendly</div><div class="cb">1. COPY package.json ← rarely changes<br>2. RUN npm install ← cached! ✅<br>3. COPY . . ← only this rebuilds</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 04 -->
+  <div class="nc">
+    <div class="nc-hdr"><span class="nc-num">04</span><div class="nc-dot" style="background:var(--red)"></div><span class="nc-title" style="color:var(--red)">Docker Security</span></div>
+    <div class="nc-body">
+      <p class="s">Security = reducing attack surface + principle of least privilege. Most vulnerabilities come from running as root, storing secrets in images, or using bloated base images.</p>
+      <h3><span class="bar" style="background:var(--red)"></span>Never run as root</h3>
+      <div class="cmd-block">
+        <div class="cb-hdr"><div class="cb-dot" style="background:#FF5F56"></div><div class="cb-dot" style="background:#FFBD2E"></div><div class="cb-dot" style="background:#27C93F"></div>&nbsp;Non-root user in Dockerfile</div>
+        <div class="cb-body">
+          <div class="cr"><span class="kw">RUN</span> <span class="sub">addgroup -S appgroup && adduser -S appuser -G appgroup</span></div>
+          <div class="cr"><span class="kw">USER</span> <span class="val">appuser</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">CMD</span> [<span class="str">"node"</span>, <span class="str">"app.js"</span>]</div>
+        </div>
+      </div>
+      <h3><span class="bar" style="background:var(--amber)"></span>Never store secrets in images</h3>
+      <div class="two">
+        <div class="cmd-block">
+          <div class="cb-hdr"><div class="cb-dot" style="background:#FF5F56"></div>&nbsp;❌ Never do this</div>
+          <div class="cb-body">
+            <div class="cr"><span class="kw">ENV</span> <span class="val">DB_PASSWORD</span>=<span class="str">mysecret</span></div>
+            <div class="cr"><span class="cmt"># baked into image forever!</span></div>
+          </div>
+        </div>
+        <div class="cmd-block">
+          <div class="cb-hdr"><div class="cb-dot" style="background:#27C93F"></div>&nbsp;✅ Inject at runtime</div>
+          <div class="cb-body">
+            <div class="cr"><span class="pmt">$</span> docker run <span class="sub">-e</span> <span class="val">DB_PASSWORD=$SECRET</span> myapp</div>
+          </div>
+        </div>
+      </div>
+      <h3><span class="bar" style="background:var(--purple)"></span>Docker Scout — Vulnerability Scanning</h3>
+      <div class="cmd-block">
+        <div class="cb-hdr"><div class="cb-dot" style="background:#FF5F56"></div><div class="cb-dot" style="background:#FFBD2E"></div><div class="cb-dot" style="background:#27C93F"></div>&nbsp;Docker Scout</div>
+        <div class="cb-body">
+          <div class="cr"><span class="pmt">$</span> docker scout cves <span class="val">myapp:latest</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cmt"># scan CVEs</span></div>
+          <div class="cr"><span class="pmt">$</span> docker scout quickview <span class="val">myapp:latest</span> &nbsp;&nbsp;&nbsp;&nbsp;<span class="cmt"># quick summary</span></div>
+          <div class="cr"><span class="pmt">$</span> docker scout compare <span class="val">myapp:v1 myapp:v2</span> &nbsp;<span class="cmt"># compare versions</span></div>
+        </div>
+      </div>
+      <div class="dl">
+        <div class="di"><span class="dk" style="color:var(--green)">Non-root user</span><div class="dv">Use USER instruction. Limits blast radius if container is compromised.</div></div>
+        <div class="di"><span class="dk" style="color:var(--blue)">Scan images</span><div class="dv">Use <b>docker scout cves</b> to find known vulnerabilities before deploying.</div></div>
+        <div class="di"><span class="dk" style="color:var(--purple)">Pin versions</span><div class="dv">Use <b>node:20.11-alpine</b> not <b>node:latest</b> — reproducible, predictable builds.</div></div>
+        <div class="di"><span class="dk" style="color:var(--red)">--read-only</span><div class="dv">Run containers with read-only filesystem to prevent unwanted writes.</div></div>
+        <div class="di"><span class="dk" style="color:var(--cyan)">Distroless</span><div class="dv">Use <b>gcr.io/distroless</b> images — no shell, no package manager, minimal surface.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 05 -->
+  <div class="nc">
+    <div class="nc-hdr"><span class="nc-num">05</span><div class="nc-dot" style="background:var(--cyan)"></div><span class="nc-title" style="color:var(--cyan)">Private Registry</span></div>
+    <div class="nc-body">
+      <p class="s">A registry stores and distributes Docker images. Docker Hub is public. In production, companies use <b>private registries</b> to keep images secure and internal.</p>
+      <div class="three">
+        <div class="cc"><div class="ct" style="color:var(--blue)">Docker Hub</div><div class="cb">Default public registry. Free tier with pull limits. Good for open-source.</div></div>
+        <div class="cc"><div class="ct" style="color:var(--amber)">AWS ECR</div><div class="cb">Amazon Elastic Container Registry. Integrates with ECS &amp; EKS. Most popular on AWS.</div></div>
+        <div class="cc"><div class="ct" style="color:var(--green)">GitHub GHCR</div><div class="cb">GitHub Container Registry. Free for public repos. Works with GitHub Actions CI/CD.</div></div>
+        <div class="cc"><div class="ct" style="color:var(--purple)">Azure ACR</div><div class="cb">Azure Container Registry. Best for Azure-based workloads.</div></div>
+        <div class="cc"><div class="ct" style="color:var(--red)">Google GCR</div><div class="cb">Google Artifact Registry. Integrates with GKE and Cloud Build.</div></div>
+        <div class="cc"><div class="ct" style="color:var(--cyan)">Self-hosted</div><div class="cb">Run your own with <b>registry:2</b> Docker image. Full control, no external dep.</div></div>
+      </div>
+      <h3><span class="bar" style="background:var(--cyan)"></span>Push to registries</h3>
+      <div class="cmd-block">
+        <div class="cb-hdr"><div class="cb-dot" style="background:#FF5F56"></div><div class="cb-dot" style="background:#FFBD2E"></div><div class="cb-dot" style="background:#27C93F"></div>&nbsp;Push commands</div>
+        <div class="cb-body">
+          <div class="cr"><span class="cmt"># Docker Hub</span></div>
+          <div class="cr"><span class="pmt">$</span> docker login &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+          <div class="cr"><span class="pmt">$</span> docker tag <span class="val">myapp:v1</span> <span class="str">username/myapp:v1</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="pmt">$</span> docker push <span class="str">username/myapp:v1</span></div>
+          <div class="cr"><span class="cmt"># GitHub GHCR</span></div>
+          <div class="cr"><span class="pmt">$</span> echo $GITHUB_TOKEN | docker login ghcr.io <span class="sub">-u USERNAME --password-stdin</span></div>
+          <div class="cr"><span class="pmt">$</span> docker tag <span class="val">myapp:v1</span> <span class="str">ghcr.io/username/myapp:v1</span> &nbsp;<span class="pmt">$</span> docker push <span class="str">ghcr.io/username/myapp:v1</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 06 -->
+  <div class="nc">
+    <div class="nc-hdr"><span class="nc-num">06</span><div class="nc-dot" style="background:var(--green)"></div><span class="nc-title" style="color:var(--green)">Healthchecks</span></div>
+    <div class="nc-body">
+      <p class="s">Docker periodically runs a command inside the container to check if it's healthy. If the check fails, Docker marks the container as <b>unhealthy</b>. Kubernetes uses this to auto-restart broken containers.</p>
+      <div class="box bg">💡 Without healthchecks, a container that started but isn't serving traffic still appears "running" — you won't know it's broken until users complain.</div>
+      <div class="cmd-block">
+        <div class="cb-hdr"><div class="cb-dot" style="background:#FF5F56"></div><div class="cb-dot" style="background:#FFBD2E"></div><div class="cb-dot" style="background:#27C93F"></div>&nbsp;HEALTHCHECK in Dockerfile</div>
+        <div class="cb-body">
+          <div class="cr"><span class="cmt"># Check every 30s, timeout 10s, 3 retries before unhealthy</span></div>
+          <div class="cr"><span class="kw">HEALTHCHECK</span> <span class="sub">--interval=30s --timeout=10s --retries=3</span> \</div>
+          <div class="cr">&nbsp;&nbsp;<span class="kw">CMD</span> curl <span class="sub">-f</span> <span class="str">http://localhost:8080/health</span> || exit 1</div>
+          <div class="cr"><span class="cmt"># For PostgreSQL</span></div>
+          <div class="cr"><span class="kw">HEALTHCHECK</span> <span class="sub">--interval=10s --timeout=5s</span> \</div>
+          <div class="cr">&nbsp;&nbsp;<span class="kw">CMD</span> pg_isready <span class="sub">-U postgres</span> || exit 1</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 07 -->
+  <div class="nc">
+    <div class="nc-hdr"><span class="nc-num">07</span><div class="nc-dot" style="background:var(--purple)"></div><span class="nc-title" style="color:var(--purple)">Resource Limits</span></div>
+    <div class="nc-body">
+      <p class="s">Without limits, one misbehaving container can consume all CPU/memory on the host and crash everything else. <b>Always set limits in production</b> for fair resource sharing.</p>
+      <div class="cmd-block">
+        <div class="cb-hdr"><div class="cb-dot" style="background:#FF5F56"></div><div class="cb-dot" style="background:#FFBD2E"></div><div class="cb-dot" style="background:#27C93F"></div>&nbsp;Resource limits — CLI &amp; Compose</div>
+        <div class="cb-body">
+          <div class="cr"><span class="cmt"># CLI flags</span></div>
+          <div class="cr"><span class="pmt">$</span> docker run <span class="sub">--memory="512m" --cpus="1.5"</span> <span class="val">myapp</span></div>
+          <div class="cr"><span class="cmt"># Docker Compose</span></div>
+          <div class="cr"><span class="str">services:</span></div>
+          <div class="cr">&nbsp;&nbsp;<span class="str">web:</span></div>
+          <div class="cr">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">deploy:</span></div>
+          <div class="cr">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">resources:</span></div>
+          <div class="cr">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="sub">limits:</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="val">memory: 512M &nbsp;&nbsp;cpus: '1.5'</span></div>
+          <div class="cr">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="sub">reservations:</span> &nbsp;&nbsp;<span class="val">memory: 256M &nbsp;&nbsp;cpus: '0.5'</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 08 -->
+  <div class="nc">
+    <div class="nc-hdr"><span class="nc-num">08</span><div class="nc-dot" style="background:var(--amber)"></div><span class="nc-title" style="color:var(--amber)">Production Best Practices</span></div>
+    <div class="nc-body">
+      <div class="dl">
+        <div class="di"><span class="dk" style="color:var(--green)">01 Multi-stage</span><div class="dv">Smaller, faster, more secure images — remove all build tools from production.</div></div>
+        <div class="di"><span class="dk" style="color:var(--blue)">02 Alpine/slim base</span><div class="dv">Use <b>node:20-alpine</b> not <b>node:20</b>. Smaller size, less attack surface.</div></div>
+        <div class="di"><span class="dk" style="color:var(--red)">03 Non-root user</span><div class="dv">Add <b>USER appuser</b> in Dockerfile. Principle of least privilege.</div></div>
+        <div class="di"><span class="dk" style="color:var(--amber)">04 .dockerignore</span><div class="dv">Don't include secrets, node_modules, .git, logs in build context.</div></div>
+        <div class="di"><span class="dk" style="color:var(--purple)">05 Pin versions</span><div class="dv">Use <b>node:20.11-alpine</b> not <b>node:latest</b> — reproducible builds.</div></div>
+        <div class="di"><span class="dk" style="color:var(--cyan)">06 Layer order</span><div class="dv">Copy deps files first → install → copy code. Maximize cache hits.</div></div>
+        <div class="di"><span class="dk" style="color:var(--green)">07 One process</span><div class="dv">One process per container. Easy to scale, monitor, and restart independently.</div></div>
+        <div class="di"><span class="dk" style="color:var(--blue)">08 HEALTHCHECK</span><div class="dv">Auto-detect unhealthy containers. Required for Kubernetes liveness probes.</div></div>
+        <div class="di"><span class="dk" style="color:var(--amber)">09 Resource limits</span><div class="dv">Set memory and CPU limits. Prevent one container starving others.</div></div>
+        <div class="di"><span class="dk" style="color:var(--red)">10 Scan images</span><div class="dv">Run <b>docker scout cves</b> before every production deploy.</div></div>
+        <div class="di"><span class="dk" style="color:var(--purple)">11 No secrets</span><div class="dv">Never bake secrets in ENV instructions. Inject at runtime or use secrets manager.</div></div>
+        <div class="di"><span class="dk" style="color:var(--cyan)">12 Named volumes</span><div class="dv">Persist data across container restarts. Never rely on container layer for data.</div></div>
+      </div>
+      <div class="box bg">🚀 Checklist: Multi-stage ✓ Non-root ✓ .dockerignore ✓ Pinned versions ✓ Resource limits ✓ Healthcheck ✓ Security scan ✓ Private registry ✓</div>
+    </div>
+  </div>
+
+  <!-- 09 Cheatsheet -->
+  <div class="nc">
+    <div class="nc-hdr"><span class="nc-num">09</span><div class="nc-dot" style="background:var(--cyan)"></div><span class="nc-title" style="color:var(--cyan)">Advanced Cheatsheet</span></div>
+    <div class="nc-body">
+      <div class="cheat-grid">
+        <div class="ci"><span class="ci-cmd">--from=builder</span><span class="ci-desc">copy from prev stage</span></div>
+        <div class="ci"><span class="ci-cmd">FROM x AS name</span><span class="ci-desc">name a build stage</span></div>
+        <div class="ci"><span class="ci-cmd">USER appuser</span><span class="ci-desc">run as non-root</span></div>
+        <div class="ci"><span class="ci-cmd">HEALTHCHECK CMD</span><span class="ci-desc">health probe</span></div>
+        <div class="ci"><span class="ci-cmd">--memory="512m"</span><span class="ci-desc">limit RAM</span></div>
+        <div class="ci"><span class="ci-cmd">--cpus="1.5"</span><span class="ci-desc">limit CPU cores</span></div>
+        <div class="ci"><span class="ci-cmd">docker scout cves</span><span class="ci-desc">scan vulnerabilities</span></div>
+        <div class="ci"><span class="ci-cmd">docker system df</span><span class="ci-desc">disk usage</span></div>
+        <div class="ci"><span class="ci-cmd">docker stats</span><span class="ci-desc">live resource usage</span></div>
+        <div class="ci"><span class="ci-cmd">docker inspect</span><span class="ci-desc">full container info</span></div>
+        <div class="ci"><span class="ci-cmd">--read-only</span><span class="ci-desc">read-only filesystem</span></div>
+        <div class="ci"><span class="ci-cmd">--cap-drop ALL</span><span class="ci-desc">drop all capabilities</span></div>
+        <div class="ci"><span class="ci-cmd">.dockerignore</span><span class="ci-desc">exclude from build</span></div>
+        <div class="ci"><span class="ci-cmd">docker tag</span><span class="ci-desc">rename/retag image</span></div>
+        <div class="ci"><span class="ci-cmd">docker push</span><span class="ci-desc">push to registry</span></div>
+        <div class="ci"><span class="ci-cmd">docker login</span><span class="ci-desc">auth to registry</span></div>
+      </div>
+      <div class="tags">
+        <span class="tag tb">#Docker</span>
+        <span class="tag tg">#DevOps</span>
+        <span class="tag ta">#30DaysOfDevOps</span>
+        <span class="tag tp">#Containers</span>
+        <span class="tag tc">#DockerSecurity</span>
+        <span class="tag tb">#CloudNative</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">30 Days of DevOps &nbsp;·&nbsp; <span>Day 04</span> &nbsp;·&nbsp; Docker Advanced ✓</div>
+
+</div>
+</body>
+</html>
