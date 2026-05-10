@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Day 05 — Docker Practical | 30 Days of DevOps</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Outfit:wght@400;600;700;800&display=swap');
+  :root{
+    --bg:#0a0f1e;--card:#111827;--border:#1e2d4a;
+    --purple:#818cf8;--blue:#60a5fa;--green:#4ade80;
+    --orange:#fb923c;--pink:#f472b6;--text:#e2e8f0;--muted:#64748b;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;line-height:1.7;padding:2rem 1rem}
+  .container{max-width:860px;margin:0 auto}
+
+  /* HEADER */
+  .header{text-align:center;padding:3rem 2rem;border:1px solid var(--border);border-radius:20px;margin-bottom:2rem;background:linear-gradient(135deg,#0d1232,#0a1628)}
+  .day-badge{display:inline-block;background:#1e1560;color:var(--purple);border:1px solid #3730a3;padding:6px 20px;border-radius:999px;font-size:13px;font-weight:700;letter-spacing:2px;margin-bottom:1rem}
+  .header h1{font-size:36px;font-weight:800;margin-bottom:.5rem}
+  .header h1 span{color:var(--purple)}
+  .header p{color:var(--muted);font-size:15px;margin-bottom:1.5rem}
+  .badges{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+  .badge{padding:5px 14px;border-radius:999px;font-size:12px;font-weight:600;border:1px solid}
+  .b-green{background:#052e16;color:var(--green);border-color:#166534}
+  .b-blue{background:#0c1a3a;color:var(--blue);border-color:#1e40af}
+  .b-orange{background:#431407;color:var(--orange);border-color:#9a3412}
+  .b-purple{background:#1e1560;color:var(--purple);border-color:#3730a3}
+
+  /* SECTION */
+  .section{margin-bottom:2rem}
+  .sec-title{font-size:12px;font-weight:700;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:1rem;display:flex;align-items:center;gap:10px}
+  .sec-title::after{content:'';flex:1;height:1px;background:var(--border)}
+
+  /* CARDS */
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.5rem;margin-bottom:1rem}
+  .card h3{font-size:16px;font-weight:700;margin-bottom:.75rem;display:flex;align-items:center;gap:8px}
+
+  /* STEPS */
+  .step{display:flex;gap:1rem;margin-bottom:1.25rem;align-items:flex-start}
+  .step-num{min-width:32px;height:32px;border-radius:50%;background:#1e1560;color:var(--purple);border:1px solid #3730a3;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;margin-top:2px}
+  .step-content h4{font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px}
+  .step-content p{font-size:13px;color:var(--muted)}
+
+  /* CODE */
+  pre{background:#060d1a;border:1px solid var(--border);border-radius:10px;padding:1.25rem;overflow-x:auto;margin:.75rem 0;position:relative}
+  code{font-family:'JetBrains Mono',monospace;font-size:13px;color:#e2e8f0;line-height:1.6}
+  .code-label{display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem}
+  .code-file{font-size:11px;font-weight:700;color:var(--purple);font-family:'JetBrains Mono',monospace;background:#1e1560;padding:3px 10px;border-radius:5px}
+  .c-green{color:#4ade80}.c-blue{color:#60a5fa}.c-orange{color:#fb923c}
+  .c-pink{color:#f472b6}.c-muted{color:#475569}.c-yellow{color:#fcd34d}
+
+  /* FILE TREE */
+  .tree{background:#060d1a;border:1px solid var(--border);border-radius:10px;padding:1.25rem;font-family:'JetBrains Mono',monospace;font-size:13px;line-height:2}
+  .tree .folder{color:var(--blue)}
+  .tree .file{color:var(--green)}
+  .tree .arrow{color:var(--muted)}
+
+  /* COMMANDS */
+  .cmd-list{display:flex;flex-direction:column;gap:8px}
+  .cmd{background:#060d1a;border:1px solid var(--border);border-left:3px solid var(--purple);border-radius:0 8px 8px 0;padding:.75rem 1rem}
+  .cmd .label{font-size:10px;font-weight:700;letter-spacing:1px;color:var(--muted);margin-bottom:4px}
+  .cmd code{color:var(--green)}
+
+  /* COMPARE */
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .cmp-card{border-radius:10px;padding:1rem}
+  .cmp-bad{background:#1a0a0a;border:1px solid #7f1d1d}
+  .cmp-good{background:#0a1a0a;border:1px solid #166534}
+  .cmp-label{font-size:11px;font-weight:700;margin-bottom:.5rem}
+  .cmp-bad .cmp-label{color:#f87171}
+  .cmp-good .cmp-label{color:var(--green)}
+  .cmp-card code{font-size:12px;font-family:'JetBrains Mono',monospace;color:var(--text)}
+
+  /* SUMMARY */
+  .summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .sum-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1rem;text-align:center}
+  .sum-icon{font-size:24px;margin-bottom:6px}
+  .sum-title{font-size:12px;font-weight:700;color:var(--text);margin-bottom:3px}
+  .sum-sub{font-size:11px;color:var(--muted)}
+
+  /* FOOTER */
+  .footer{text-align:center;padding:2rem;color:var(--muted);font-size:13px;border-top:1px solid var(--border);margin-top:2rem}
+  .footer a{color:var(--purple);text-decoration:none}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="day-badge">DAY 05 / 30</div>
+    <h1>🐳 Docker <span>Practical</span></h1>
+    <p>Building & Dockerizing a Real Flask App — End to End</p>
+    <div class="badges">
+      <span class="badge b-green">✅ Hands-On</span>
+      <span class="badge b-blue">🐍 Python Flask</span>
+      <span class="badge b-orange">🐳 Docker</span>
+      <span class="badge b-purple">🚀 Multi-Stage Build</span>
+    </div>
+  </div>
+
+  <!-- WHAT WE BUILD -->
+  <div class="section">
+    <div class="sec-title">what we're building today</div>
+    <div class="card">
+      <h3>📝 Flask To-Do App — Fully Dockerized</h3>
+      <p style="color:var(--muted);font-size:14px;margin-bottom:1rem">Ek real Flask app banvuya aani Docker ne containerize karuya — multi-stage build, docker-compose, aani DockerHub push sarta!</p>
+      <div class="summary-grid">
+        <div class="sum-card"><div class="sum-icon">🐍</div><div class="sum-title">Flask App</div><div class="sum-sub">Todo CRUD app</div></div>
+        <div class="sum-card"><div class="sum-icon">🐳</div><div class="sum-title">Dockerfile</div><div class="sum-sub">Multi-stage build</div></div>
+        <div class="sum-card"><div class="sum-icon">🚀</div><div class="sum-title">Deploy</div><div class="sum-sub">Docker Compose</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOLDER STRUCTURE -->
+  <div class="section">
+    <div class="sec-title">project structure</div>
+    <div class="tree">
+      <div><span class="folder">📁 flask-todo-app/</span></div>
+      <div>&nbsp;&nbsp;├── <span class="file">app.py</span> <span class="arrow">← Flask application</span></div>
+      <div>&nbsp;&nbsp;├── <span class="file">requirements.txt</span> <span class="arrow">← Python dependencies</span></div>
+      <div>&nbsp;&nbsp;├── <span class="file">Dockerfile</span> <span class="arrow">← Multi-stage build</span></div>
+      <div>&nbsp;&nbsp;├── <span class="file">docker-compose.yml</span> <span class="arrow">← Run everything</span></div>
+      <div>&nbsp;&nbsp;├── <span class="file">.dockerignore</span> <span class="arrow">← Ignore unnecessary files</span></div>
+      <div>&nbsp;&nbsp;└── <span class="folder">📁 templates/</span></div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── <span class="file">index.html</span> <span class="arrow">← Frontend UI</span></div>
+    </div>
+  </div>
+
+  <!-- STEP 1: FLASK APP -->
+  <div class="section">
+    <div class="sec-title">step 1 — flask app</div>
+    <div class="card">
+      <div class="code-label"><span class="code-file">app.py</span></div>
+      <pre><code><span class="c-pink">from</span> flask <span class="c-pink">import</span> Flask, render_template, request, redirect, url_for
+<span class="c-pink">import</span> json, os
+
+app = Flask(__name__)
+TASKS_FILE = <span class="c-green">'tasks.json'</span>
+
+<span class="c-blue">def</span> <span class="c-yellow">load_tasks</span>():
+    <span class="c-pink">if</span> os.path.exists(TASKS_FILE):
+        <span class="c-pink">with</span> open(TASKS_FILE) <span class="c-pink">as</span> f:
+            <span class="c-pink">return</span> json.load(f)
+    <span class="c-pink">return</span> []
+
+<span class="c-muted">@app.route('/')</span>
+<span class="c-blue">def</span> <span class="c-yellow">index</span>():
+    tasks = load_tasks()
+    <span class="c-pink">return</span> render_template(<span class="c-green">'index.html'</span>, tasks=tasks)
+
+<span class="c-muted">@app.route('/add', methods=['POST'])</span>
+<span class="c-blue">def</span> <span class="c-yellow">add</span>():
+    task = request.form.get(<span class="c-green">'task'</span>)
+    <span class="c-pink">if</span> task:
+        tasks = load_tasks()
+        tasks.append({<span class="c-green">'id'</span>: len(tasks)+<span class="c-orange">1</span>, <span class="c-green">'text'</span>: task, <span class="c-green">'done'</span>: <span class="c-orange">False</span>})
+    <span class="c-pink">return</span> redirect(url_for(<span class="c-green">'index'</span>))
+
+<span class="c-muted">@app.route('/done/&lt;int:task_id&gt;')</span>
+<span class="c-blue">def</span> <span class="c-yellow">done</span>(task_id):
+    tasks = load_tasks()
+    <span class="c-pink">for</span> t <span class="c-pink">in</span> tasks:
+        <span class="c-pink">if</span> t[<span class="c-green">'id'</span>] == task_id:
+            t[<span class="c-green">'done'</span>] = <span class="c-pink">not</span> t[<span class="c-green">'done'</span>]
+    <span class="c-pink">return</span> redirect(url_for(<span class="c-green">'index'</span>))
+
+<span class="c-pink">if</span> __name__ == <span class="c-green">'__main__'</span>:
+    app.run(host=<span class="c-green">'0.0.0.0'</span>, port=<span class="c-orange">5000</span>, debug=<span class="c-orange">True</span>)</code></pre>
+    </div>
+  </div>
+
+  <!-- STEP 2: REQUIREMENTS -->
+  <div class="section">
+    <div class="sec-title">step 2 — requirements.txt</div>
+    <div class="card">
+      <div class="code-label"><span class="code-file">requirements.txt</span></div>
+      <pre><code><span class="c-green">flask==3.0.0</span></code></pre>
+    </div>
+  </div>
+
+  <!-- STEP 3: DOCKERFILE -->
+  <div class="section">
+    <div class="sec-title">step 3 — multi-stage dockerfile</div>
+    <div class="card">
+      <div class="code-label"><span class="code-file">Dockerfile</span></div>
+      <pre><code><span class="c-muted"># ================================</span>
+<span class="c-muted"># Stage 1: Builder</span>
+<span class="c-muted"># ================================</span>
+<span class="c-blue">FROM</span> python:3.11-slim <span class="c-pink">AS</span> builder
+
+<span class="c-blue">WORKDIR</span> /app
+
+<span class="c-muted"># Install dependencies first (layer caching!)</span>
+<span class="c-blue">COPY</span> requirements.txt .
+<span class="c-blue">RUN</span> pip install --no-cache-dir --user -r requirements.txt
+
+<span class="c-muted"># ================================</span>
+<span class="c-muted"># Stage 2: Production</span>
+<span class="c-muted"># ================================</span>
+<span class="c-blue">FROM</span> python:3.11-slim <span class="c-pink">AS</span> production
+
+<span class="c-blue">WORKDIR</span> /app
+
+<span class="c-muted"># Copy installed packages from builder</span>
+<span class="c-blue">COPY</span> --from=builder /root/.local /root/.local
+
+<span class="c-muted"># Copy app code</span>
+<span class="c-blue">COPY</span> . .
+
+<span class="c-muted"># Security: non-root user</span>
+<span class="c-blue">RUN</span> addgroup --system appgroup <span class="c-orange">&amp;&amp;</span> adduser --system --group appgroup
+<span class="c-blue">USER</span> appgroup
+
+<span class="c-blue">EXPOSE</span> <span class="c-orange">5000</span>
+<span class="c-blue">CMD</span> [<span class="c-green">"python"</span>, <span class="c-green">"app.py"</span>]</code></pre>
+    </div>
+  </div>
+
+  <!-- STEP 4: DOCKER COMPOSE -->
+  <div class="section">
+    <div class="sec-title">step 4 — docker-compose.yml</div>
+    <div class="card">
+      <div class="code-label"><span class="code-file">docker-compose.yml</span></div>
+      <pre><code><span class="c-blue">version</span>: <span class="c-green">'3.8'</span>
+
+<span class="c-blue">services</span>:
+  <span class="c-orange">flask-app</span>:
+    <span class="c-blue">build</span>: .
+    <span class="c-blue">container_name</span>: flask-todo
+    <span class="c-blue">ports</span>:
+      - <span class="c-green">"5000:5000"</span>
+    <span class="c-blue">volumes</span>:
+      - <span class="c-green">./tasks.json:/app/tasks.json</span>
+    <span class="c-blue">restart</span>: unless-stopped</code></pre>
+    </div>
+  </div>
+
+  <!-- STEP 5: COMMANDS -->
+  <div class="section">
+    <div class="sec-title">step 5 — run kara!</div>
+    <div class="cmd-list">
+      <div class="cmd"><div class="label">BUILD IMAGE</div><code>docker build -t flask-todo .</code></div>
+      <div class="cmd"><div class="label">RUN CONTAINER</div><code>docker run -p 5000:5000 flask-todo</code></div>
+      <div class="cmd"><div class="label">WITH DOCKER COMPOSE</div><code>docker compose up --build</code></div>
+      <div class="cmd"><div class="label">BROWSER MADHE OPEN</div><code>http://localhost:5000</code></div>
+      <div class="cmd"><div class="label">STOP</div><code>docker compose down</code></div>
+    </div>
+  </div>
+
+  <!-- STEP 6: DOCKERHUB PUSH -->
+  <div class="section">
+    <div class="sec-title">step 6 — dockerhub var push kara</div>
+    <div class="cmd-list">
+      <div class="cmd"><div class="label">LOGIN</div><code>docker login</code></div>
+      <div class="cmd"><div class="label">TAG IMAGE</div><code>docker tag flask-todo yourusername/flask-todo:v1</code></div>
+      <div class="cmd"><div class="label">PUSH</div><code>docker push yourusername/flask-todo:v1</code></div>
+    </div>
+  </div>
+
+  <!-- GOOD VS BAD -->
+  <div class="section">
+    <div class="sec-title">key learnings today</div>
+    <div class="compare">
+      <div class="cmp-card cmp-bad">
+        <div class="cmp-label">❌ Without Multi-Stage</div>
+        <code>Image size: ~900MB<br/>Build tools included<br/>Slow & heavy</code>
+      </div>
+      <div class="cmp-card cmp-good">
+        <div class="cmp-label">✅ With Multi-Stage</div>
+        <code>Image size: ~130MB<br/>Only runtime included<br/>Fast & secure</code>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <p>Day 05 / 30 — 30 Days of DevOps Journey 🚀</p>
+    <p style="margin-top:8px"><a href="https://github.com/devopswithpallavi/30-days-of-devops">GitHub Repo ↗</a></p>
+    <p style="margin-top:8px;font-size:11px">Built with ☕ & curiosity</p>
+  </div>
+
+</div>
+</body>
+</html>  
