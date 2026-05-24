@@ -122,25 +122,25 @@ docker compose down
 ## 📸 Screenshots
 
 ### Git Clone
-![Git Clone](images/project3 img1.png)
+![Git Clone](images/project3_img1.png)
 
 ### Project Files
-![Project Files](images/project3 img2.png)
+![Project Files](images/project3_img2.png)
 
 ### Docker Build
-![Docker Build](images/project3 img 4.png)
+![Docker Build](images/project3_img4.png)
 
 ### App Running at localhost:5000
-![App UI](images/project3 img5.png)
+![App UI](images/project3_img5.png)
 
 ### Docker Network Inspect
-![Network Inspect](images/project3 img10.png)
+![Network Inspect](images/project3_img10.png)
 
 ### Messages Saved in App
-![App with messages](images/project3 img12.png)
+![App with messages](images/project3_img12.png)
 
 ### MySQL Data Verified
-![MySQL Query](images/project3 img13.png)
+![MySQL Query](images/project3_img13.png)
 
 ---
 
