@@ -1,76 +1,49 @@
-# 🐳 Day 05 — Two-Tier Flask App with Docker Networking
+# 🐳 Day 05 — Docker Networking + Two-Tier Flask App
 
-> **30 Days of DevOps Journey** | Day 5 of 30
-
----
-
-## 📌 What I Built Today
-
-A **Two-Tier Architecture** app using Docker — Flask (backend) + MySQL (database) running as separate containers connected via a custom Docker Network.
+> 📅 **30 Days of DevOps** | Day 5 of 30
+> 🎥 Reference: [TrainWithShubham — Docker In One Shot](https://www.youtube.com/@TrainWithShubham)
+> 👤 By: **devopswithpallavi**
 
 ---
 
 ## 🏗️ Architecture
 
 ```
-┌─────────────────────────────────────────┐
-│           Docker Network: two-tier       │
-│                                         │
-│  ┌─────────────┐      ┌──────────────┐  │
-│  │  Flask App  │ ───► │  MySQL DB    │  │
-│  │  (port 5000)│      │  (port 3306) │  │
-│  └─────────────┘      └──────────────┘  │
-└─────────────────────────────────────────┘
+┌──────────────────────────────────────────┐
+│         Docker Network: two-tier          │
+│                                          │
+│   ┌─────────────┐      ┌─────────────┐   │
+│   │  Flask App  │ ───► │  MySQL DB   │   │
+│   │  port 5000  │      │  port 3306  │   │
+│   └─────────────┘      └─────────────┘   │
+└──────────────────────────────────────────┘
 ```
 
 ---
 
-## 🛠️ What I Did
+## 🚀 How to Run This Project
 
-- ✅ Cloned `two-tier-flask-app` from GitHub
-- ✅ Built Docker image using `Dockerfile` (Python 3.9-slim base)
-- ✅ Created custom Docker Network (`two-tier`)
-- ✅ Ran MySQL container on the same network
-- ✅ Ran Flask app container with environment variables for DB connection
-- ✅ Verified app at `localhost:5000`
-- ✅ Confirmed messages stored in MySQL using `SELECT * FROM messages`
+### Prerequisites
+- Docker installed on your machine
+- Git installed
 
----
-
-## 📂 Project Structure
-
-```
-two-tier-flask-app/
-├── app.py                  # Flask application
-├── Dockerfile              # Docker image for Flask
-├── Dockerfile-multistage   # Multi-stage build version
-├── docker-compose.yml      # Compose setup
-├── templates/              # HTML templates
-├── k8s/                    # Kubernetes manifests
-└── eks-manifests/          # AWS EKS manifests
-```
-
----
-
-## ⚙️ Commands Used
-
-### 1. Clone the repo
+### Step 1 — Clone the repo
 ```bash
 git clone https://github.com/LondheShubham153/two-tier-flask-app.git
 cd two-tier-flask-app
 ```
 
-### 2. Build Docker image
+### Step 2 — Build Docker image
 ```bash
 docker build -t two-tire-backend .
 ```
 
-### 3. Create custom network
+### Step 3 — Create custom Docker network
 ```bash
 docker network create two-tier
 ```
 
-### 4. Run MySQL container
+### Step 4 — Run MySQL container
 ```bash
 docker run -d --name mysql \
   --network two-tier \
@@ -79,7 +52,7 @@ docker run -d --name mysql \
   mysql
 ```
 
-### 5. Run Flask app container
+### Step 5 — Run Flask app container
 ```bash
 docker run -d -p 5000:5000 \
   --network two-tier \
@@ -90,62 +63,120 @@ docker run -d -p 5000:5000 \
   two-tire-backend:latest
 ```
 
-### 6. Verify running containers
+### Step 6 — Open in browser
+```
+http://localhost:5000
+```
+
+> 💡 **Note:** Both MySQL and Flask containers must be on the **same network**. `MYSQL_HOST=mysql` refers to the container name — Docker DNS resolves it automatically!
+
+---
+
+## 🛑 How to Stop
+
 ```bash
-docker ps
-docker network inspect two-tier
+# Stop all containers
+docker stop mysql
+docker stop <flask_container_name>
+
+# Remove containers
+docker rm mysql
+docker rm <flask_container_name>
+
+# Remove network
+docker network rm two-tier
 ```
 
 ---
 
-## 🌐 App Output
+## 🐙 Using Docker Compose (Easier Way!)
 
-The Flask app ran successfully at `http://localhost:5000`
+Start everything with a single command:
 
-Messages entered in the UI were saved to MySQL and confirmed via:
-```sql
-use devops;
-select * from messages;
+```bash
+docker compose up -d
 ```
 
-| id | message |
-|----|---------|
-| 1  | hello |
-| 2  | this is output |
-| 3  | flask app or mysql are connecting in same network |
+Stop everything:
+```bash
+docker compose down
+```
+
+---
+
+## ✅ What I Did Today
+
+| # | Task | Status |
+|---|------|--------|
+| 1 | Cloned `two-tier-flask-app` from GitHub | ✅ |
+| 2 | Built Docker image (Python 3.9-slim base) | ✅ |
+| 3 | Created custom Docker bridge network `two-tier` | ✅ |
+| 4 | Ran MySQL container on the network | ✅ |
+| 5 | Connected Flask app to MySQL via container name | ✅ |
+| 6 | Verified app at `localhost:5000` | ✅ |
+| 7 | Confirmed data stored in MySQL with SQL query | ✅ |
+| 8 | Debugged container errors using `docker logs` | ✅ |
+
+---
+
+## 📸 Screenshots
+
+### Git Clone
+![Git Clone](images/project3_img1.png)
+
+### Project Files
+![Project Files](images/project3_img2.png)
+
+### Docker Build
+![Docker Build](images/project3_img_4.png)
+
+### App Running at localhost:5000
+![App UI](images/project3_img5.png)
+
+### Docker Network Inspect
+![Network Inspect](images/project3_img10.png)
+
+### Messages Saved in App
+![App with messages](images/project3_img12.png)
+
+### MySQL Data Verified
+![MySQL Query](images/project3_img13.png)
+
+---
+
+## 🗄️ MySQL Output
+
+```sql
+mysql> use devops;
+mysql> select * from messages;
++----+---------------------------------------------------+
+| id | message                                           |
++----+---------------------------------------------------+
+|  1 | hello                                             |
+|  2 | this is output                                    |
+|  3 | flask app or mysql are connecting in same network |
++----+---------------------------------------------------+
+3 rows in set (0.004 sec)
+```
 
 ---
 
 ## 💡 Key Concepts Learned
 
-| Concept | Description |
-|--------|-------------|
-| Docker Networking | Containers communicate via custom bridge network |
-| Environment Variables | DB credentials passed via `-e` flags |
-| Two-Tier Architecture | Frontend/Backend separated into different containers |
-| Container Logs | Debugging using `docker logs <container_id>` |
-| Network Inspect | `docker network inspect` to verify connections |
-
----
-
-## 📅 Journey Progress
-
-| Day | Topic | Status |
-|-----|-------|--------|
-| Day 01 | Linux Basics | ✅ Done |
-| Day 02 | Git & GitHub | ✅ Done |
-| Day 03 | Docker Basics | ✅ Done |
-| Day 04 | Docker Advanced (Multi-stage, Security) | ✅ Done |
-| Day 05 | Docker Networking + Two-Tier App | ✅ Done |
-| Day 06 | Coming next... | 🔜 |
+| Concept | What I Learned |
+|---------|----------------|
+| 🌐 Docker Networking | Containers communicate via custom bridge network |
+| 🔍 Container DNS | Use container name as hostname — no IP needed! |
+| 🔐 Environment Variables | Pass DB credentials securely via `-e` flags |
+| 🏗️ Two-Tier Architecture | App & DB running in separate containers |
+| 🐛 docker logs | Debug container crashes from terminal |
+| 🔎 network inspect | Verify which containers are on a network |
+| 🐙 Docker Compose | Run multi-container apps with one command |
 
 ---
 
 ## 🔗 Resources
 
-- [TrainWithShubham - Docker In One Shot](https://www.youtube.com/@TrainWithShubham)
+- [TrainWithShubham YouTube](https://www.youtube.com/@TrainWithShubham)
 - [Original Project Repo](https://github.com/LondheShubham153/two-tier-flask-app)
-
----
-
-> *Consistency > Perfection. Small steps every day = Big results.* 🚀
+- [My GitHub](https://github.com/devopswithpallavi/30-days-of-devops)
