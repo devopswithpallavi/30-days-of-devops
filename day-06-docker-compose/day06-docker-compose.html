@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day 06 — Docker Compose</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Sora:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0D1117;--bg2:#161B22;--bg3:#21262D;--border:#30363D;--text:#E6EDF3;--text2:#C9D1D9;--muted:#8B949E;--dim:#484F58;--green:#3FB950;--gbg:#0D1F12;--gbr:#238636;--blue:#58A6FF;--bbg:#0C2340;--bbr:#1F6FEB;--amber:#E3B341;--abg:#1C1700;--abr:#9E6A03;--purple:#BC8CFF;--pbg:#1A1040;--pbr:#6E40C9;--red:#FF7B72;--rbg:#1C0A09;--rbr:#8B2020;--cyan:#39D5D5;--cbg:#0A1F1F;--cbr:#1B6F6F;}
+body{font-family:'Sora',sans-serif;background:#080C10;color:var(--text);padding:40px 20px;line-height:1.8}
+.wrap{max-width:740px;margin:0 auto}
+.header{background:var(--bg2);border:0.5px solid var(--border);border-radius:20px;padding:32px 32px 24px;margin-bottom:16px;position:relative;overflow:hidden}
+.header::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#58A6FF,#3FB950,#BC8CFF,#E3B341)}
+.hdr-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px}
+.day-tag{display:inline-flex;align-items:center;gap:6px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--blue);background:var(--bbg);border:0.5px solid var(--bbr);border-radius:999px;padding:4px 12px}
+.day-dot{width:6px;height:6px;border-radius:50%;background:var(--blue);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+.prog{display:flex;gap:3px}
+.pg{width:18px;height:3px;border-radius:2px;background:var(--border)}
+.pg.d{background:var(--green)}.pg.c{background:var(--blue)}
+.header h1{font-size:30px;font-weight:600;margin-bottom:6px}
+.header h1 span{color:var(--blue)}
+.header p{font-size:14px;color:var(--muted)}
+.toc{display:flex;flex-wrap:wrap;gap:7px;margin-top:16px;padding-top:16px;border-top:0.5px solid var(--border)}
+.ti{font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--muted);background:var(--bg3);border:0.5px solid var(--border);border-radius:6px;padding:3px 10px}
+.nc{background:var(--bg2);border:0.5px solid var(--border);border-radius:14px;margin-bottom:14px;overflow:hidden}
+.nc-hdr{display:flex;align-items:center;gap:10px;padding:14px 20px;border-bottom:0.5px solid var(--border)}
+.nc-num{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--dim);min-width:24px}
+.nc-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.nc-title{font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;font-family:'JetBrains Mono',monospace;flex:1}
+.nc-body{padding:20px}
+p.s{font-size:14px;color:var(--muted);line-height:1.85;margin-bottom:12px}
+p.s:last-child{margin-bottom:0}
+p.s b{color:var(--text2);font-weight:500}
+h3{font-size:13px;font-weight:500;color:var(--text);margin:18px 0 8px;display:flex;align-items:center;gap:8px}
+h3:first-child{margin-top:0}
+h3 .bar{width:3px;height:13px;border-radius:2px;flex-shrink:0;display:inline-block}
+.box{border-radius:8px;padding:12px 16px;margin:10px 0;font-size:13px;line-height:1.75}
+.box b{font-weight:600}
+.bg{background:var(--gbg);border-left:3px solid var(--green);color:#4AC261}
+.bb{background:var(--bbg);border-left:3px solid var(--blue);color:#79C0FF}
+.ba{background:var(--abg);border-left:3px solid var(--amber);color:var(--amber)}
+.bp{background:var(--pbg);border-left:3px solid var(--purple);color:var(--purple)}
+.br{background:var(--rbg);border-left:3px solid var(--red);color:var(--red)}
+.bc{background:var(--cbg);border-left:3px solid var(--cyan);color:var(--cyan)}
+.dl{display:flex;flex-direction:column;gap:8px;margin:10px 0}
+.di{background:var(--bg);border:0.5px solid var(--border);border-radius:8px;padding:12px 14px;display:flex;gap:12px;align-items:flex-start}
+.dk{font-family:'JetBrains Mono',monospace;font-size:11.5px;font-weight:500;min-width:130px;flex-shrink:0;padding-top:1px}
+.dv{font-size:13px;color:var(--muted);line-height:1.65}
+.dv b{color:var(--text2);font-weight:500}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}
+@media(max-width:520px){.two{grid-template-columns:1fr}}
+.three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:10px 0}
+@media(max-width:560px){.three{grid-template-columns:1fr 1fr}}
+.cc{background:var(--bg);border:0.5px solid var(--border);border-radius:10px;padding:14px 16px}
+.ct{font-size:13px;font-weight:600;margin-bottom:6px}
+.cb{font-size:12px;color:var(--muted);line-height:1.7}
+.cb b{color:var(--text2);font-weight:500}
+.cmd-block{background:#010409;border:0.5px solid var(--border);border-radius:10px;overflow:hidden;margin:10px 0}
+.cb-hdr{background:var(--bg2);padding:7px 14px;font-size:10px;color:var(--dim);font-family:'JetBrains Mono',monospace;border-bottom:0.5px solid var(--border);display:flex;align-items:center;gap:6px}
+.cb-dot{width:6px;height:6px;border-radius:50%}
+.cb-body{padding:12px 14px}
+.cr{display:flex;gap:8px;padding:3px 0;align-items:baseline;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.6}
+.pmt{color:var(--green);flex-shrink:0}
+.kw{color:#FF7B72}
+.sub{color:#FFA657}
+.val{color:#A5D6FF}
+.str{color:#79C0FF}
+.cmt{color:var(--dim);font-size:11px;font-family:'JetBrains Mono',monospace}
+.tbl{width:100%;border-collapse:collapse;margin:10px 0;font-size:13px}
+.tbl th{background:var(--bg3);padding:9px 12px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);border-bottom:0.5px solid var(--border);font-family:'JetBrains Mono',monospace}
+.tbl td{padding:9px 12px;border-bottom:0.5px solid var(--border);color:var(--text2);vertical-align:top;line-height:1.6}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:var(--bg2)}
+.tbl code{font-family:'JetBrains Mono',monospace;font-size:11px;background:var(--bg3);padding:2px 6px;border-radius:4px;color:var(--cyan)}
+.cheat-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:10px 0}
+.ci{background:var(--bg);border:0.5px solid var(--border);border-radius:8px;padding:8px 10px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.ci-cmd{font-family:'JetBrains Mono',monospace;font-size:11px;color:#79C0FF;flex-shrink:0}
+.ci-desc{font-size:10px;color:var(--dim);text-align:right}
+.tags{display:flex;flex-wrap:wrap;gap:7px;padding-top:16px;border-top:0.5px solid var(--border);margin-top:16px}
+.tag{font-size:10px;padding:3px 10px;border-radius:999px;border:0.5px solid;font-family:'JetBrains Mono',monospace}
+.tg{color:var(--green);border-color:var(--gbr);background:var(--gbg)}
+.tb{color:var(--blue);border-color:var(--bbr);background:var(--bbg)}
+.ta{color:var(--amber);border-color:var(--abr);background:var(--abg)}
+.tp{color:var(--purple);border-color:var(--pbr);background:var(--pbg)}
+.tc{color:var(--cyan);border-color:var(--cbr);background:var(--cbg)}
+.footer{text-align:center;font-size:11px;color:var(--dim);font-family:'JetBrains Mono',monospace;padding:24px 0 0}
+.footer span{color:var(--blue)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="header">
+    <div class="hdr-top">
+      <div class="day-tag"><div class="day-dot"></div>Day 06 / 30</div>
+      <div class="prog">
+        <div class="pg d"></div><div class="pg d"></div><div class="pg d"></div>
+        <div class="pg d"></div><div class="pg d"></div><div class="pg c"></div>
+        <div class="pg"></div><div class="pg"></div><div class="pg"></div><div class="pg"></div>
+      </div>
+    </div>
+    <h1>🐙 Docker <span>Compose</span></h1>
+    <p>What is Docker Compose, docker-compose.yml structure, services, networks, volumes, environment variables, depends_on, and running multi-container apps with one command.</p>
+    <div class="toc">
+      <span class="ti">What is Compose</span>
+      <span class="ti">YAML Structure</span>
+      <span class="ti">Services</span>
+      <span class="ti">Networks</span>
+      <span class="ti">Volumes</span>
+      <span class="ti">Environment Variables</span>
+      <span class="ti">depends_on</span>
+      <span class="ti">Two-Tier Project</span>
+      <span class="ti">Cheatsheet</span>
+    </div>
+  </div>
+
+  <!-- 01 -->
+  <div class="nc">
+    <div class="nc-hdr"><span class="nc-num">01</span><div class="nc-dot" style="background:var(--blue)"></div><span class="nc-title" style="color:var(--blue)">What is Docker Compose?</span></div>
+    <div class="nc-body">
+      <p class="s">Docker Compose is a tool for <b>defining and running multi-container Docker applications</b>. Instead of running multiple docker run commands manually, you define everything in a single <b>docker-compose.yml</b> file and start it all with one command.</p>
+      <div class="two">
+        <div class="cc"><div class="ct" style="color:var(--red)">❌ Without Compose</div><div class="cb">Run network → Run MySQL → Run Flask → Remember all flags, env vars, ports every time. Very error-prone.</div></div>
+        <div class="cc"><div class="ct" style="color:var(--green)">✅ With Compose</div><div class="cb">One <b>docker compose up</b> command. Everything defined in one file. Easy to share, version control, and reproduce.</div></div>
+      </div>
+      <div class="box bb">💡 Docker Compose is perfect for <b>local development</b> and <b>testing multi-container apps</b>. It automatically handles networking between containers!</div>
+      <h3><span class="bar" style="background:var(--blue)"></span>Install check</h3>
+      <div class="cmd-block">
+        <div class="cb-hdr"><div class="cb-dot" style="background:#FF5F56"></div><div class="cb-dot" style="background:#FFBD2E"></div><div class="cb-dot" style="background:#27C93F"></div>&nbsp;Terminal</div>
+        <div class="cb-body">
+          <div class="cr"><span class="cmt"># Check if Docker Compose is installed</span></div>
+          <div class="cr"><span class="pmt">$</span> docker compose version</div>
+          <div class="cr"><span class="cmt"># Docker Compose v2.x.x</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 02 -->
+  <div class="nc">
+    <div class="nc-hdr"><span class="nc-num">02</span><div class="nc-dot" style="background:var(--green)"></div><span class="nc-title" style="color:var(--green)">docker-compose.yml Structure</span></div>
+    <div class="nc-body">
+      <p class="s">The <b>docker-compose.yml</b> file is written in YAML format. It defines all the services (containers), networks, and volumes your application needs. Indentation matters in YAML — always use spaces, never tabs.</p>
+      <div class="cmd-block">
+        <div class="cb-hdr"><div class="cb-dot" style="background:#FF5F56"></div><div class="cb-dot" style="background:#FFBD2E"></div><div class="cb-dot" style="background:#27C93F"></div>&nbsp;Basic Structure</div>
+        <div class="cb-body">
+          <div class="cr"><span class="str">version:</span> <span class="val">'3.8'</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cmt"># Compose file version</span></div>
+          <div class="cr"><span class="str">services:</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cmt"># Define containers here</span></div>
+          <div class="cr">&nbsp;&nbsp;<span class="str">service-name:</span></div>
+          <div class="cr">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">image:</span> <span class="val">image-name</span></div>
+          <div class="cr">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">ports:</span></div>
+          <div class="cr">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="str">"host:container"</span></div>
+          <div class="cr">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">environment:</span></div>
+          <div class="cr">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="val">KEY=value</span></div>
+          <div class="cr"><span class="str">networks:</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cmt"># Define networks here</span></div>
+          <div class="cr"><span class="str">volumes:</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cmt"># Define volumes here</span></div>
+        </div>
+      </div>
+      <table class="tbl">
+        <tr><th>Key</th><th>What it does</th></tr>
+        <tr><td><code>version</code></td><td>Compose file format version (use 3.8)</td></tr>
+        <tr><td><code>services</code></td><td>Define all containers/applications</td></tr>
+        <tr><td><code>networks</code></td><td>Define custom networks</td></tr>
+        <tr><td><code>volumes</code></td><td>Define persistent storage</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- 03 -->
+  <div class="nc">
+    <div class="nc-hdr"><span class="nc-num">03</span><div class="nc-dot" style="background:var(--amber)"></div><span class="nc-title" style="color:var(--amber)">Services</span></div>
+    <div class="nc-body">
+      <p class="s">Each <b>service</b> represents one container. You can define the image, ports, environment variables, volumes, networks, and more for each service.</p>
+      <div class="dl">
+        <div class="di"><span class="dk" style="color:var(--amber)">image</span><div class="dv">Docker image to use — e.g. <b>mysql</b>, <b>nginx</b>, <b>python:3.9-slim</b></div></div>
+        <div class="di"><span class="dk" style="color:var(--blue)">build</span><div class="dv">Build image from a <b>Dockerfile</b> instead of pulling — use <b>build: .</b> for current directory</div></div>
+        <div class="di"><span class="dk" style="color:var(--green)">ports</span><div class="dv">Map host port to container port — <b>"5000:5000"</b> means host:container</div></div>
+        <div class="di"><span class="dk" style="color:var(--purple)">environment</span><div class="dv">Set environment variables inside the container — DB credentials, config values, etc.</div></div>
+        <div class="di"><span class="dk" style="color:var(--cyan)">volumes</span><div class="dv">Mount volumes for persistent data — data survives even after container restart</div></div>
+        <div class="di"><span class="dk" style="color:var(--red)">depends_on</span><div class="dv">Start this service only after another service is running — e.g. Flask after MySQL</div></div>
+        <div class="di"><span class="dk" style="color:var(--amber)">networks</span><div class="dv">Connect this service to specific networks — containers on same network can talk</div></div>
+        <div class="di"><span class="dk" style="color:var(--muted)">restart</span><div class="dv">Auto-restart policy — <b>always</b>, <b>on-failure</b>, <b>unless-stopped</b></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 04 -->
+  <div class="nc">
+    <div class="nc-hdr"><span class="nc-num">04</span><div class="nc-dot" style="background:var(--cyan)"></div><span class="nc-title" style="color:var(--cyan)">Networks in Compose</span></div>
+    <div class="nc-body">
+      <p class="s">Docker Compose <b>automatically creates a default network</b> for your app. All services in the same Compose file can communicate using their service name as the hostname — no manual network creation needed!</p>
+      <div class="box bc">💡 In Compose, services talk using <b>service name</b> as hostname. Flask can reach MySQL at <b>mysql</b> because that's the service name — Docker DNS handles the rest!</div>
+      <div class="two">
+        <div class="cc"><div class="ct" style="color:var(--green)">✅ Default Network</div><div class="cb">Compose auto-creates a network. All services connected automatically. No extra config needed.</div></div>
+        <div class="cc"><div class="ct" style="color:var(--blue)">🔧 Custom Network</div><div class="cb">Define your own network under <b>networks:</b> for better control and naming.</div></div>
+      </div>
+      <h3><span class="bar" style="background:var(--cyan)"></span>Custom network in Compose</h3>
+      <div class="cmd-block">
+        <div class="cb-hdr"><div class="cb-dot" style="background:#FF5F56"></div><div class="cb-dot" style="background:#FFBD2E"></div><div class="cb-dot" style="background:#27C93F"></div>&nbsp;docker-compose.yml</div>
+        <div class="cb-body">
+          <div class="cr"><span class="str">services:</span></div>
+          <div class="cr">&nbsp;&nbsp;<span class="str">flask-app:</span></div>
+          <div class="cr">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">networks:</span></div>
+          <div class="cr">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="val">two-tier</span></div>
+          <div class="cr">&nbsp;&nbsp;<span class="str">mysql:</span></div>
+          <div class="cr">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">networks:</span></div>
+          <div class="cr">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="val">two-tier</span></div>
+          <div class="cr"><span class="str">networks:</span></div>
+          <div class="cr">&nbsp;&nbsp;<span class="str">two-tier:</span></div>
+          <div class="cr">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">driver:</span> <span class="val">bridge</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 05 -->
+  <div class="nc">
+    <div class="nc-hdr"><span class="nc-num">05</span><div class="nc-dot" style="background:var(--purple)"></div><span class="nc-title" style="color:var(--purple)">Volumes — Persistent Data</span></div>
+    <div class="nc-body">
+      <p class="s">By default, <b>container data is lost when the container stops</b>. Volumes solve this by storing data on the host machine — so your database data survives container restarts!</p>
+      <div class="two">
+        <div class="cc"><div class="ct" style="color:var(--red)">❌ Without Volume</div><div class="cb">Container stops → all data gone. MySQL database wiped. Start from scratch every time.</div></div>
+        <div class="cc"><div class="ct" style="color:var(--green)">✅ With Volume</div><div class="cb">Data stored on host. Container restarts → data still there. <b>Persistent storage.</b></div></div>
+      </div>
+      <div class="cmd-block">
+        <div class="cb-hdr"><div class="cb-dot" style="background:#FF5F56"></div><div class="cb-dot" style="background:#FFBD2E"></div><div class="cb-dot" style="background:#27C93F"></div>&nbsp;Volume in docker-compose.yml</div>
+        <div class="cb-body">
+          <div class="cr"><span class="str">services:</span></div>
+          <div class="cr">&nbsp;&nbsp;<span class="str">mysql:</span></div>
+          <div class="cr">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">image:</span> <span class="val">mysql</span></div>
+          <div class="cr">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">volumes:</span></div>
+          <div class="cr">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="val">mysql-data:/var/lib/mysql</span> <span class="cmt"># persist DB data</span></div>
+          <div class="cr"><span class="str">volumes:</span></div>
+          <div class="cr">&nbsp;&nbsp;<span class="str">mysql-data:</span> <span class="cmt"># named volume definition</span></div>
+        </div>
+      </div>
+      <div class="box bp">📌 <b>/var/lib/mysql</b> is where MySQL stores all its data inside the container. Mounting a volume here keeps your data safe!</div>
+    </div>
+  </div>
+
+  <!-- 06 -->
+  <div class="nc">
+    <div class="nc-hdr"><span class="nc-num">06</span><div class="nc-dot" style="background:var(--amber)"></div><span class="nc-title" style="color:var(--amber)">Environment Variables</span></div>
+    <div class="nc-body">
+      <p class="s">Environment variables pass configuration to containers — like database credentials, hostnames, and API keys. In Compose you can define them <b>directly</b> or use a <b>.env file</b> for better security.</p>
+      <h3><span class="bar" style="background:var(--amber)"></span>Method 1 — Inline in compose file</h3>
+      <div class="cmd-block">
+        <div class="cb-hdr"><div class="cb-dot" style="background:#FF5F56"></div><div class="cb-dot" style="background:#FFBD2E"></div><div class="cb-dot" style="background:#27C93F"></div>&nbsp;Inline environment</div>
+        <div class="cb-body">
+          <div class="cr"><span class="str">services:</span></div>
+          <div class="cr">&nbsp;&nbsp;<span class="str">mysql:</span></div>
+          <div class="cr">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">environment:</span></div>
+          <div class="cr">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="val">MYSQL_ROOT_PASSWORD:</span> <span class="str">root</span></div>
+          <div class="cr">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="val">MYSQL_DATABASE:</span> <span class="str">devops</span></div>
+          <div class="cr">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="val">MYSQL_USER:</span> <span class="str">admin</span></div>
+        </div>
+      </div>
+      <h3><span class="bar" style="background:var(--green)"></span>Method 2 — Using .env file (recommended)</h3>
+      <div class="cmd-block">
+        <div class="cb-hdr"><div class="cb-dot" style="background:#FF5F56"></div><div class="cb-dot" style="background:#FFBD2E"></div><div class="cb-dot" style="background:#27C93F"></div>&nbsp;.env file</div>
+        <div class="cb-body">
+          <div class="cr"><span class="val">MYSQL_ROOT_PASSWORD</span>=<span class="str">root</span></div>
+          <div class="cr"><span class="val">MYSQL_DATABASE</span>=<span class="str">devops</span></div>
+          <div class="cr"><span class="val">MYSQL_USER</span>=<span class="str">admin</span></div>
+        </div>
+      </div>
+      <div class="cmd-block">
+        <div class="cb-hdr"><div class="cb-dot" style="background:#FF5F56"></div><div class="cb-dot" style="background:#FFBD2E"></div><div class="cb-dot" style="background:#27C93F"></div>&nbsp;Reference in compose file</div>
+        <div class="cb-body">
+          <div class="cr"><span class="str">services:</span></div>
+          <div class="cr">&nbsp;&nbsp;<span class="str">mysql:</span></div>
+          <div class="cr">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">env_file:</span></div>
+          <div class="cr">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="str">.env</span></div>
+        </div>
+      </div>
+      <div class="box ba">⚠️ Always add <b>.env</b> to your <b>.gitignore</b> file — never push passwords to GitHub!</div>
+    </div>
+  </div>
+
+  <!-- 07 -->
+  <div class="nc">
+    <div class="nc-hdr"><span class="nc-num">07</span><div class="nc-dot" style="background:var(--red)"></div><span class="nc-title" style="color:var(--red)">depends_on</span></div>
+    <div class="nc-body">
+      <p class="s"><b>depends_on</b> tells Docker Compose the <b>startup order</b> of services. For example, Flask app should start only after MySQL is running — otherwise Flask will crash trying to connect to a database that doesn't exist yet.</p>
+      <div class="box br">⚠️ <b>depends_on</b> only waits for the container to <b>start</b> — not for the service inside to be <b>ready</b>. MySQL might still be initializing when Flask tries to connect!</div>
+      <div class="cmd-block">
+        <div class="cb-hdr"><div class="cb-dot" style="background:#FF5F56"></div><div class="cb-dot" style="background:#FFBD2E"></div><div class="cb-dot" style="background:#27C93F"></div>&nbsp;depends_on example</div>
+        <div class="cb-body">
+          <div class="cr"><span class="str">services:</span></div>
+          <div class="cr">&nbsp;&nbsp;<span class="str">flask-app:</span></div>
+          <div class="cr">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">build:</span> <span class="val">.</span></div>
+          <div class="cr">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">depends_on:</span></div>
+          <div class="cr">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="val">mysql</span> <span class="cmt"># start mysql first, then flask</span></div>
+          <div class="cr">&nbsp;&nbsp;<span class="str">mysql:</span></div>
+          <div class="cr">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">image:</span> <span class="val">mysql</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 08 -->
+  <div class="nc">
+    <div class="nc-hdr"><span class="nc-num">08</span><div class="nc-dot" style="background:var(--green)"></div><span class="nc-title" style="color:var(--green)">Two-Tier App with Compose</span></div>
+    <div class="nc-body">
+      <p class="s">This is the same <b>Flask + MySQL Two-Tier App</b> from Day 5 — but now using Docker Compose. Instead of 6+ manual commands, everything runs with <b>one single command</b>!</p>
+      <div class="cmd-block">
+        <div class="cb-hdr"><div class="cb-dot" style="background:#FF5F56"></div><div class="cb-dot" style="background:#FFBD2E"></div><div class="cb-dot" style="background:#27C93F"></div>&nbsp;docker-compose.yml — Complete file</div>
+        <div class="cb-body">
+          <div class="cr"><span class="str">version:</span> <span class="val">'3.8'</span></div>
+          <div class="cr"><span class="str">services:</span></div>
+          <div class="cr">&nbsp;&nbsp;<span class="str">mysql:</span></div>
+          <div class="cr">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">image:</span> <span class="val">mysql:5.7</span></div>
+          <div class="cr">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">environment:</span></div>
+          <div class="cr">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="val">MYSQL_ROOT_PASSWORD:</span> <span class="str">root</span></div>
+          <div class="cr">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="val">MYSQL_DATABASE:</span> <span class="str">devops</span></div>
+          <div class="cr">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">volumes:</span></div>
+          <div class="cr">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="val">mysql-data:/var/lib/mysql</span></div>
+          <div class="cr">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">networks:</span></div>
+          <div class="cr">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="val">two-tier</span></div>
+          <div class="cr">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">restart:</span> <span class="val">always</span></div>
+          <div class="cr">&nbsp;&nbsp;<span class="str">flask-app:</span></div>
+          <div class="cr">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">build:</span> <span class="val">.</span></div>
+          <div class="cr">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">ports:</span></div>
+          <div class="cr">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="str">"5000:5000"</span></div>
+          <div class="cr">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">environment:</span></div>
+          <div class="cr">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="val">MYSQL_HOST:</span> <span class="str">mysql</span> <span class="cmt"># service name = hostname</span></div>
+          <div class="cr">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="val">MYSQL_USER:</span> <span class="str">root</span></div>
+          <div class="cr">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="val">MYSQL_PASSWORD:</span> <span class="str">root</span></div>
+          <div class="cr">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="val">MYSQL_DB:</span> <span class="str">devops</span></div>
+          <div class="cr">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">depends_on:</span></div>
+          <div class="cr">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="val">mysql</span></div>
+          <div class="cr">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">networks:</span></div>
+          <div class="cr">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="val">two-tier</span></div>
+          <div class="cr">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">restart:</span> <span class="val">always</span></div>
+          <div class="cr"><span class="str">networks:</span></div>
+          <div class="cr">&nbsp;&nbsp;<span class="str">two-tier:</span></div>
+          <div class="cr">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">driver:</span> <span class="val">bridge</span></div>
+          <div class="cr"><span class="str">volumes:</span></div>
+          <div class="cr">&nbsp;&nbsp;<span class="str">mysql-data:</span></div>
+        </div>
+      </div>
+      <h3><span class="bar" style="background:var(--green)"></span>Run everything with ONE command!</h3>
+      <div class="cmd-block">
+        <div class="cb-hdr"><div class="cb-dot" style="background:#FF5F56"></div><div class="cb-dot" style="background:#FFBD2E"></div><div class="cb-dot" style="background:#27C93F"></div>&nbsp;Start &amp; Stop</div>
+        <div class="cb-body">
+          <div class="cr"><span class="pmt">$</span> docker compose up <span class="sub">-d</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cmt"># start everything in background</span></div>
+          <div class="cr"><span class="pmt">$</span> docker compose down &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cmt"># stop &amp; remove containers</span></div>
+          <div class="cr"><span class="pmt">$</span> docker compose down <span class="sub">-v</span> &nbsp;&nbsp;&nbsp;<span class="cmt"># stop &amp; remove volumes too</span></div>
+          <div class="cr"><span class="pmt">$</span> docker compose logs <span class="sub">-f</span> &nbsp;&nbsp;<span class="cmt"># follow all logs</span></div>
+          <div class="cr"><span class="pmt">$</span> docker compose ps &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cmt"># see status of all services</span></div>
+          <div class="cr"><span class="pmt">$</span> docker compose build &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cmt"># rebuild images</span></div>
+          <div class="cr"><span class="pmt">$</span> docker compose restart &nbsp;&nbsp;&nbsp;<span class="cmt"># restart all services</span></div>
+        </div>
+      </div>
+      <div class="box bg">✅ <b>docker compose up -d</b> replaces: network create + mysql run + flask run — all in ONE command! That's the power of Compose.</div>
+    </div>
+  </div>
+
+  <!-- 09 Cheatsheet -->
+  <div class="nc">
+    <div class="nc-hdr"><span class="nc-num">09</span><div class="nc-dot" style="background:var(--cyan)"></div><span class="nc-title" style="color:var(--cyan)">Docker Compose Cheatsheet</span></div>
+    <div class="nc-body">
+      <div class="cheat-grid">
+        <div class="ci"><span class="ci-cmd">compose up -d</span><span class="ci-desc">start all services</span></div>
+        <div class="ci"><span class="ci-cmd">compose down</span><span class="ci-desc">stop all services</span></div>
+        <div class="ci"><span class="ci-cmd">compose down -v</span><span class="ci-desc">stop + remove volumes</span></div>
+        <div class="ci"><span class="ci-cmd">compose ps</span><span class="ci-desc">list running services</span></div>
+        <div class="ci"><span class="ci-cmd">compose logs -f</span><span class="ci-desc">follow all logs</span></div>
+        <div class="ci"><span class="ci-cmd">compose build</span><span class="ci-desc">rebuild images</span></div>
+        <div class="ci"><span class="ci-cmd">compose restart</span><span class="ci-desc">restart all services</span></div>
+        <div class="ci"><span class="ci-cmd">compose exec</span><span class="ci-desc">run command in service</span></div>
+        <div class="ci"><span class="ci-cmd">compose pull</span><span class="ci-desc">pull latest images</span></div>
+        <div class="ci"><span class="ci-cmd">compose stop</span><span class="ci-desc">stop without removing</span></div>
+        <div class="ci"><span class="ci-cmd">compose start</span><span class="ci-desc">start stopped services</span></div>
+        <div class="ci"><span class="ci-cmd">compose config</span><span class="ci-desc">validate compose file</span></div>
+        <div class="ci"><span class="ci-cmd">image:</span><span class="ci-desc">pull from Docker Hub</span></div>
+        <div class="ci"><span class="ci-cmd">build: .</span><span class="ci-desc">build from Dockerfile</span></div>
+        <div class="ci"><span class="ci-cmd">depends_on:</span><span class="ci-desc">define start order</span></div>
+        <div class="ci"><span class="ci-cmd">restart: always</span><span class="ci-desc">auto restart container</span></div>
+        <div class="ci"><span class="ci-cmd">env_file: .env</span><span class="ci-desc">load env from file</span></div>
+        <div class="ci"><span class="ci-cmd">volumes:</span><span class="ci-desc">persist data</span></div>
+      </div>
+      <div class="tags">
+        <span class="tag tb">#Docker</span>
+        <span class="tag tg">#DevOps</span>
+        <span class="tag ta">#30DaysOfDevOps</span>
+        <span class="tag tp">#DockerCompose</span>
+        <span class="tag tc">#Containers</span>
+        <span class="tag tb">#YAML</span>
+        <span class="tag tg">#Flask</span>
+        <span class="tag ta">#MySQL</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">30 Days of DevOps &nbsp;·&nbsp; <span>Day 06</span> &nbsp;·&nbsp; Docker Compose ✓</div>
+
+</div>
+</body>
+</html>
