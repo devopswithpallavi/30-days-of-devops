@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CI/CD Pipeline Fundamentals — Day 07</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Sora:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0D1117;--bg2:#161B22;--bg3:#21262D;--border:#30363D;--text:#E6EDF3;--text2:#C9D1D9;--muted:#8B949E;--dim:#484F58;--green:#3FB950;--gbg:#0D1F12;--gbr:#238636;--blue:#58A6FF;--bbg:#0C2340;--bbr:#1F6FEB;--amber:#E3B341;--abg:#1C1700;--abr:#9E6A03;--purple:#BC8CFF;--pbg:#1A1040;--pbr:#6E40C9;--red:#FF7B72;--rbg:#1C0A09;--rbr:#8B2020;--cyan:#39D5D5;--cbg:#0A1F1F;--cbr:#1B6F6F;}
+body{font-family:'Sora',sans-serif;background:#080C10;color:var(--text);padding:40px 20px;line-height:1.8}
+.wrap{max-width:760px;margin:0 auto}
+
+/* Header */
+.header{background:var(--bg2);border:0.5px solid var(--border);border-radius:20px;padding:32px 32px 24px;margin-bottom:16px;position:relative;overflow:hidden}
+.header::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#58A6FF,#3FB950,#BC8CFF,#E3B341)}
+.hdr-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px}
+.day-tag{display:inline-flex;align-items:center;gap:6px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--blue);background:var(--bbg);border:0.5px solid var(--bbr);border-radius:999px;padding:4px 12px}
+.day-dot{width:6px;height:6px;border-radius:50%;background:var(--blue);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+.prog{display:flex;gap:3px}
+.pg{width:18px;height:3px;border-radius:2px;background:var(--border)}
+.pg.d{background:var(--green)}.pg.c{background:var(--blue)}
+.header h1{font-size:28px;font-weight:600;margin-bottom:6px}
+.header h1 span{color:var(--green)}
+.header p{font-size:13px;color:var(--muted)}
+.toc{display:flex;flex-wrap:wrap;gap:7px;margin-top:16px;padding-top:16px;border-top:0.5px solid var(--border)}
+.ti{font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--muted);background:var(--bg3);border:0.5px solid var(--border);border-radius:6px;padding:3px 10px}
+
+/* Cards */
+.nc{background:var(--bg2);border:0.5px solid var(--border);border-radius:14px;margin-bottom:14px;overflow:hidden}
+.nc-hdr{display:flex;align-items:center;gap:10px;padding:14px 20px;border-bottom:0.5px solid var(--border)}
+.nc-num{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--dim);min-width:24px}
+.nc-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.nc-title{font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;font-family:'JetBrains Mono',monospace;flex:1}
+.nc-body{padding:20px}
+
+/* Text */
+p.s{font-size:14px;color:var(--muted);line-height:1.85;margin-bottom:12px}
+p.s:last-child{margin-bottom:0}
+p.s b{color:var(--text2);font-weight:500}
+h3{font-size:13px;font-weight:500;color:var(--text);margin:18px 0 8px;display:flex;align-items:center;gap:8px}
+h3:first-child{margin-top:0}
+h3 .bar{width:3px;height:13px;border-radius:2px;flex-shrink:0;display:inline-block}
+
+/* Boxes */
+.box{border-radius:8px;padding:12px 16px;margin:10px 0;font-size:13px;line-height:1.75}
+.box b{font-weight:600}
+.bg{background:var(--gbg);border-left:3px solid var(--green);color:#4AC261}
+.bb{background:var(--bbg);border-left:3px solid var(--blue);color:#79C0FF}
+.ba{background:var(--abg);border-left:3px solid var(--amber);color:var(--amber)}
+.bp{background:var(--pbg);border-left:3px solid var(--purple);color:var(--purple)}
+.br{background:var(--rbg);border-left:3px solid var(--red);color:var(--red)}
+.bc{background:var(--cbg);border-left:3px solid var(--cyan);color:var(--cyan)}
+
+/* Definition list */
+.dl{display:flex;flex-direction:column;gap:8px;margin:10px 0}
+.di{background:var(--bg);border:0.5px solid var(--border);border-radius:8px;padding:12px 14px;display:flex;gap:12px;align-items:flex-start}
+.dk{font-family:'JetBrains Mono',monospace;font-size:11.5px;font-weight:500;min-width:140px;flex-shrink:0;padding-top:1px}
+.dv{font-size:13px;color:var(--muted);line-height:1.65}
+.dv b{color:var(--text2);font-weight:500}
+
+/* Two column */
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}
+@media(max-width:520px){.two{grid-template-columns:1fr}}
+.cc{background:var(--bg);border:0.5px solid var(--border);border-radius:10px;padding:14px 16px}
+.ct{font-size:13px;font-weight:600;margin-bottom:6px}
+.cb{font-size:12px;color:var(--muted);line-height:1.7}
+.cb b{color:var(--text2);font-weight:500}
+
+/* Table */
+.tbl{width:100%;border-collapse:collapse;margin:10px 0;font-size:13px}
+.tbl th{background:var(--bg3);padding:9px 12px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);border-bottom:0.5px solid var(--border);font-family:'JetBrains Mono',monospace}
+.tbl td{padding:9px 12px;border-bottom:0.5px solid var(--border);color:var(--text2);vertical-align:top;line-height:1.6}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:var(--bg2)}
+.tbl code{font-family:'JetBrains Mono',monospace;font-size:11px;background:var(--bg3);padding:2px 6px;border-radius:4px;color:var(--cyan)}
+
+/* Cheatsheet */
+.cheat-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:10px 0}
+.ci-item{background:var(--bg);border:0.5px solid var(--border);border-radius:8px;padding:8px 10px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.ci-cmd{font-family:'JetBrains Mono',monospace;font-size:11px;color:#79C0FF;flex-shrink:0}
+.ci-desc{font-size:10px;color:var(--dim);text-align:right}
+
+/* Tags */
+.tags{display:flex;flex-wrap:wrap;gap:7px;padding-top:16px;border-top:0.5px solid var(--border);margin-top:16px}
+.tag{font-size:10px;padding:3px 10px;border-radius:999px;border:0.5px solid;font-family:'JetBrains Mono',monospace}
+.tg{color:var(--green);border-color:var(--gbr);background:var(--gbg)}
+.tb{color:var(--blue);border-color:var(--bbr);background:var(--bbg)}
+.ta{color:var(--amber);border-color:var(--abr);background:var(--abg)}
+.tp{color:var(--purple);border-color:var(--pbr);background:var(--pbg)}
+.tc{color:var(--cyan);border-color:var(--cbr);background:var(--cbg)}
+
+/* SVG diagram wrapper */
+.diagram{background:var(--bg);border:0.5px solid var(--border);border-radius:12px;padding:16px;margin:14px 0;overflow-x:auto}
+.diagram svg{display:block;margin:0 auto}
+
+/* Timestamp badge */
+.ts-badge{display:inline-flex;align-items:center;gap:5px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--dim);background:var(--bg3);border:0.5px solid var(--border);border-radius:6px;padding:2px 8px;margin-bottom:12px}
+
+/* Footer */
+.footer{text-align:center;font-size:11px;color:var(--dim);font-family:'JetBrains Mono',monospace;padding:24px 0 8px}
+.footer span{color:var(--green)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ═══ HEADER ═══ -->
+<div class="header">
+  <div class="hdr-top">
+    <div class="day-tag"><div class="day-dot"></div>Day 07 / 30</div>
+    <div class="prog">
+      <div class="pg d"></div><div class="pg d"></div><div class="pg d"></div>
+      <div class="pg d"></div><div class="pg d"></div><div class="pg d"></div>
+      <div class="pg c"></div>
+      <div class="pg"></div><div class="pg"></div><div class="pg"></div>
+    </div>
+  </div>
+  <h1>⚙️ CI/CD Pipeline <span>Fundamentals</span></h1>
+  <p>Complete theory — Manual workflow problems, Continuous Integration, Continuous Delivery, Continuous Deployment, and Deployment Strategies. Based on TechWorld with Nana.</p>
+  <div class="toc">
+    <span class="ti">Manual Workflow Problems</span>
+    <span class="ti">What is CI/CD</span>
+    <span class="ti">Continuous Integration</span>
+    <span class="ti">Continuous Delivery</span>
+    <span class="ti">Continuous Deployment</span>
+    <span class="ti">Deployment Strategies</span>
+    <span class="ti">Cheatsheet</span>
+  </div>
+</div>
+
+<!-- ═══ SECTION 01 — Problems ═══ -->
+<div class="nc">
+  <div class="nc-hdr"><span class="nc-num">01</span><div class="nc-dot" style="background:var(--red)"></div><span class="nc-title" style="color:var(--red)">The Problem — Manual Deployment Workflow</span></div>
+  <div class="nc-body">
+    <div class="ts-badge">⏱ 0:22 – 4:02</div>
+    <p class="s">Before CI/CD, teams followed a <b>manual deployment process</b> — error-prone, slow, and stressful. Nana explains that <b>"a human in the loop"</b> is the root cause of most of these problems.</p>
+
+    <!-- SVG: Old vs New -->
+    <div class="diagram">
+      <svg width="100%" viewBox="0 0 680 220" role="img">
+        <title>Old manual workflow vs CI/CD workflow</title>
+        <desc>Two rows comparing the old painful manual workflow against the modern CI/CD automated pipeline</desc>
+        <defs>
+          <marker id="arr1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+            <path d="M2 1L8 5L2 9" fill="none" stroke="#FF7B72" stroke-width="1.5" stroke-linecap="round"/>
+          </marker>
+          <marker id="arr2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+            <path d="M2 1L8 5L2 9" fill="none" stroke="#3FB950" stroke-width="1.5" stroke-linecap="round"/>
+          </marker>
+        </defs>
+        <!-- OLD WAY row -->
+        <text x="34" y="38" font-family="JetBrains Mono,monospace" font-size="10" fill="#FF7B72" font-weight="500">OLD WAY</text>
+        <!-- boxes -->
+        <rect x="10" y="48" width="96" height="36" rx="6" fill="#1C0A09" stroke="#8B2020" stroke-width="0.5"/>
+        <text x="58" y="70" text-anchor="middle" font-family="Sora,sans-serif" font-size="11" fill="#FF7B72">Weeks of</text>
+        <text x="58" y="82" text-anchor="middle" font-family="Sora,sans-serif" font-size="11" fill="#FF7B72">coding</text>
+        <line x1="106" y1="66" x2="124" y2="66" stroke="#FF7B72" stroke-width="1" marker-end="url(#arr1)"/>
+        <rect x="124" y="48" width="96" height="36" rx="6" fill="#1C0A09" stroke="#8B2020" stroke-width="0.5"/>
+        <text x="172" y="70" text-anchor="middle" font-family="Sora,sans-serif" font-size="11" fill="#FF7B72">Big bang</text>
+        <text x="172" y="82" text-anchor="middle" font-family="Sora,sans-serif" font-size="11" fill="#FF7B72">merge</text>
+        <line x1="220" y1="66" x2="238" y2="66" stroke="#FF7B72" stroke-width="1" marker-end="url(#arr1)"/>
+        <rect x="238" y="48" width="96" height="36" rx="6" fill="#1C0A09" stroke="#8B2020" stroke-width="0.5"/>
+        <text x="286" y="70" text-anchor="middle" font-family="Sora,sans-serif" font-size="11" fill="#FF7B72">Code</text>
+        <text x="286" y="82" text-anchor="middle" font-family="Sora,sans-serif" font-size="11" fill="#FF7B72">freeze</text>
+        <line x1="334" y1="66" x2="352" y2="66" stroke="#FF7B72" stroke-width="1" marker-end="url(#arr1)"/>
+        <rect x="352" y="48" width="96" height="36" rx="6" fill="#1C0A09" stroke="#8B2020" stroke-width="0.5"/>
+        <text x="400" y="70" text-anchor="middle" font-family="Sora,sans-serif" font-size="11" fill="#FF7B72">Manual</text>
+        <text x="400" y="82" text-anchor="middle" font-family="Sora,sans-serif" font-size="11" fill="#FF7B72">testing</text>
+        <line x1="448" y1="66" x2="466" y2="66" stroke="#FF7B72" stroke-width="1" marker-end="url(#arr1)"/>
+        <rect x="466" y="48" width="96" height="36" rx="6" fill="#1C0A09" stroke="#8B2020" stroke-width="0.5"/>
+        <text x="514" y="70" text-anchor="middle" font-family="Sora,sans-serif" font-size="11" fill="#FF7B72">Pray &amp;</text>
+        <text x="514" y="82" text-anchor="middle" font-family="Sora,sans-serif" font-size="11" fill="#FF7B72">deploy 😰</text>
+        <rect x="572" y="48" width="100" height="36" rx="6" fill="#1C0A09" stroke="#8B2020" stroke-width="0.5"/>
+        <line x1="562" y1="66" x2="572" y2="66" stroke="#FF7B72" stroke-width="1" marker-end="url(#arr1)"/>
+        <text x="622" y="70" text-anchor="middle" font-family="Sora,sans-serif" font-size="11" fill="#FF7B72">Something</text>
+        <text x="622" y="82" text-anchor="middle" font-family="Sora,sans-serif" font-size="11" fill="#FF7B72">breaks 🔥</text>
+
+        <!-- CI/CD WAY row -->
+        <text x="34" y="138" font-family="JetBrains Mono,monospace" font-size="10" fill="#3FB950" font-weight="500">CI/CD WAY</text>
+        <rect x="10" y="148" width="90" height="36" rx="6" fill="#0D1F12" stroke="#238636" stroke-width="0.5"/>
+        <text x="55" y="170" text-anchor="middle" font-family="Sora,sans-serif" font-size="11" fill="#3FB950">Code push</text>
+        <line x1="100" y1="166" x2="118" y2="166" stroke="#3FB950" stroke-width="1" marker-end="url(#arr2)"/>
+        <rect x="118" y="148" width="90" height="36" rx="6" fill="#0D1F12" stroke="#238636" stroke-width="0.5"/>
+        <text x="163" y="170" text-anchor="middle" font-family="Sora,sans-serif" font-size="11" fill="#3FB950">Auto build</text>
+        <line x1="208" y1="166" x2="226" y2="166" stroke="#3FB950" stroke-width="1" marker-end="url(#arr2)"/>
+        <rect x="226" y="148" width="90" height="36" rx="6" fill="#0D1F12" stroke="#238636" stroke-width="0.5"/>
+        <text x="271" y="170" text-anchor="middle" font-family="Sora,sans-serif" font-size="11" fill="#3FB950">Auto test</text>
+        <line x1="316" y1="166" x2="334" y2="166" stroke="#3FB950" stroke-width="1" marker-end="url(#arr2)"/>
+        <rect x="334" y="148" width="90" height="36" rx="6" fill="#0D1F12" stroke="#238636" stroke-width="0.5"/>
+        <text x="379" y="170" text-anchor="middle" font-family="Sora,sans-serif" font-size="11" fill="#3FB950">Staging</text>
+        <line x1="424" y1="166" x2="442" y2="166" stroke="#3FB950" stroke-width="1" marker-end="url(#arr2)"/>
+        <rect x="442" y="148" width="90" height="36" rx="6" fill="#0D1F12" stroke="#238636" stroke-width="0.5"/>
+        <text x="487" y="170" text-anchor="middle" font-family="Sora,sans-serif" font-size="11" fill="#3FB950">Approve</text>
+        <line x1="532" y1="166" x2="550" y2="166" stroke="#3FB950" stroke-width="1" marker-end="url(#arr2)"/>
+        <rect x="550" y="148" width="120" height="36" rx="6" fill="#0D1F12" stroke="#238636" stroke-width="0.5"/>
+        <text x="610" y="166" text-anchor="middle" font-family="Sora,sans-serif" font-size="11" fill="#3FB950">Production 🚀</text>
+        <text x="610" y="178" text-anchor="middle" font-family="Sora,sans-serif" font-size="11" fill="#238636">No panic!</text>
+      </svg>
+    </div>
+
+    <div class="dl">
+      <div class="di"><span class="dk" style="color:var(--red)">Merge Conflicts</span><div class="dv">Developers worked in isolation for weeks. When merging, there were <b>hundreds of conflicts</b> — very hard and time-consuming to fix.</div></div>
+      <div class="di"><span class="dk" style="color:var(--amber)">Code Freeze</span><div class="dv">Before a release, new code was <b>blocked from being pushed</b> — only bug fixes allowed. Team productivity completely stopped.</div></div>
+      <div class="di"><span class="dk" style="color:var(--purple)">Manual Testing</span><div class="dv">QA teams manually tested everything — <b>slow, error-prone</b>, and impossible to scale with large codebases.</div></div>
+      <div class="di"><span class="dk" style="color:var(--red)">Late Bug Detection</span><div class="dv">Bugs were found <b>after weeks of work</b> — much more expensive to fix. Early detection = cheap fix.</div></div>
+      <div class="di"><span class="dk" style="color:var(--muted)">Deployment Fear</span><div class="dv">Deploying was a <b>high-stress event</b> — because something always broke and had to be fixed manually under pressure.</div></div>
+    </div>
+    <div class="box br">😰 Old workflow: Weeks of coding → Big merge → Code freeze → Manual test → Pray → Deploy → Something breaks → Panic all night! CI/CD eliminates all of this.</div>
+  </div>
+</div>
+
+<!-- ═══ SECTION 02 — What is CI/CD ═══ -->
+<div class="nc">
+  <div class="nc-hdr"><span class="nc-num">02</span><div class="nc-dot" style="background:var(--blue)"></div><span class="nc-title" style="color:var(--blue)">What is CI/CD?</span></div>
+  <div class="nc-body">
+    <p class="s">CI/CD stands for <b>Continuous Integration / Continuous Delivery (or Deployment)</b>. It is an automated pipeline that handles everything from code commit to production deployment — removing manual, human-error-prone steps.</p>
+    <div class="two">
+      <div class="cc"><div class="ct" style="color:var(--blue)">CI — Continuous Integration</div><div class="cb">Every code commit automatically triggers a <b>build and test</b> process. Bugs are caught early, before they reach production.</div></div>
+      <div class="cc"><div class="ct" style="color:var(--green)">CD — Continuous Delivery / Deployment</div><div class="cb">After tests pass, code is automatically <b>delivered to staging or deployed to production</b>. The release process is fully automated.</div></div>
+    </div>
+
+    <!-- Full pipeline SVG -->
+    <div class="diagram">
+      <svg width="100%" viewBox="0 0 680 120" role="img">
+        <title>Complete CI/CD pipeline from code to production</title>
+        <desc>Six stages: Code Push, Build, Test, Package, Staging, Production connected by arrows</desc>
+        <defs>
+          <marker id="arrg" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+            <path d="M2 1L8 5L2 9" fill="none" stroke="#3FB950" stroke-width="1.5" stroke-linecap="round"/>
+          </marker>
+        </defs>
+        <!-- Stage boxes -->
+        <!-- Code -->
+        <rect x="10" y="30" width="90" height="60" rx="8" fill="#0C2340" stroke="#1F6FEB" stroke-width="0.5"/>
+        <text x="55" y="54" text-anchor="middle" font-family="Sora,sans-serif" font-size="18">👩‍💻</text>
+        <text x="55" y="74" text-anchor="middle" font-family="Sora,sans-serif" font-size="11" fill="#58A6FF" font-weight="500">Code Push</text>
+        <text x="55" y="86" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#484F58">git commit</text>
+        <line x1="100" y1="60" x2="114" y2="60" stroke="#3FB950" stroke-width="1.2" marker-end="url(#arrg)"/>
+        <!-- Build -->
+        <rect x="114" y="30" width="90" height="60" rx="8" fill="#0D1F12" stroke="#238636" stroke-width="0.5"/>
+        <text x="159" y="54" text-anchor="middle" font-family="Sora,sans-serif" font-size="18">🔨</text>
+        <text x="159" y="74" text-anchor="middle" font-family="Sora,sans-serif" font-size="11" fill="#3FB950" font-weight="500">Build</text>
+        <text x="159" y="86" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#484F58">compile</text>
+        <line x1="204" y1="60" x2="218" y2="60" stroke="#3FB950" stroke-width="1.2" marker-end="url(#arrg)"/>
+        <!-- Test -->
+        <rect x="218" y="30" width="90" height="60" rx="8" fill="#1C1700" stroke="#9E6A03" stroke-width="0.5"/>
+        <text x="263" y="54" text-anchor="middle" font-family="Sora,sans-serif" font-size="18">🧪</text>
+        <text x="263" y="74" text-anchor="middle" font-family="Sora,sans-serif" font-size="11" fill="#E3B341" font-weight="500">Auto Test</text>
+        <text x="263" y="86" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#484F58">unit + integration</text>
+        <line x1="308" y1="60" x2="322" y2="60" stroke="#3FB950" stroke-width="1.2" marker-end="url(#arrg)"/>
+        <!-- Package -->
+        <rect x="322" y="30" width="90" height="60" rx="8" fill="#1A1040" stroke="#6E40C9" stroke-width="0.5"/>
+        <text x="367" y="54" text-anchor="middle" font-family="Sora,sans-serif" font-size="18">📦</text>
+        <text x="367" y="74" text-anchor="middle" font-family="Sora,sans-serif" font-size="11" fill="#BC8CFF" font-weight="500">Package</text>
+        <text x="367" y="86" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#484F58">docker image</text>
+        <line x1="412" y1="60" x2="426" y2="60" stroke="#3FB950" stroke-width="1.2" marker-end="url(#arrg)"/>
+        <!-- Staging -->
+        <rect x="426" y="30" width="90" height="60" rx="8" fill="#0A1F1F" stroke="#1B6F6F" stroke-width="0.5"/>
+        <text x="471" y="54" text-anchor="middle" font-family="Sora,sans-serif" font-size="18">🚧</text>
+        <text x="471" y="74" text-anchor="middle" font-family="Sora,sans-serif" font-size="11" fill="#39D5D5" font-weight="500">Staging</text>
+        <text x="471" y="86" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#484F58">deploy &amp; test</text>
+        <line x1="516" y1="60" x2="530" y2="60" stroke="#3FB950" stroke-width="1.2" marker-end="url(#arrg)"/>
+        <!-- Production -->
+        <rect x="530" y="20" width="140" height="80" rx="8" fill="#0D1F12" stroke="#3FB950" stroke-width="1.5"/>
+        <text x="600" y="50" text-anchor="middle" font-family="Sora,sans-serif" font-size="22">🚀</text>
+        <text x="600" y="74" text-anchor="middle" font-family="Sora,sans-serif" font-size="12" fill="#3FB950" font-weight="600">Production</text>
+        <text x="600" y="88" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#238636">Go live!</text>
+      </svg>
+    </div>
+    <div class="box bb">💡 CI/CD's main goal: <b>Remove "human in the loop"</b> from repetitive steps — automate build, test, and deploy so engineers can focus on writing code, not managing deployments.</div>
+  </div>
+</div>
+
+<!-- ═══ SECTION 03 — Continuous Integration ═══ -->
+<div class="nc">
+  <div class="nc-hdr"><span class="nc-num">03</span><div class="nc-dot" style="background:var(--green)"></div><span class="nc-title" style="color:var(--green)">Continuous Integration — CI</span></div>
+  <div class="nc-body">
+    <div class="ts-badge">⏱ 4:02 – 8:18</div>
+    <p class="s"><b>Continuous Integration</b> means developers commit their code to a shared repository <b>frequently</b> — multiple times a day. Every commit automatically triggers a <b>build and test pipeline</b>. Bugs are caught within minutes, not weeks.</p>
+
+    <!-- CI Flow SVG -->
+    <div class="diagram">
+      <svg width="100%" viewBox="0 0 680 180" role="img">
+        <title>Continuous Integration flow diagram</title>
+        <desc>Developer commits code to feature branch, which triggers automated build and tests, producing a pass or fail result</desc>
+        <defs>
+          <marker id="arrcig" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+            <path d="M2 1L8 5L2 9" fill="none" stroke="#3FB950" stroke-width="1.5" stroke-linecap="round"/>
+          </marker>
+          <marker id="arrcir" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+            <path d="M2 1L8 5L2 9" fill="none" stroke="#FF7B72" stroke-width="1.5" stroke-linecap="round"/>
+          </marker>
+        </defs>
+
+        <!-- Developer -->
+        <rect x="20" y="40" width="110" height="60" rx="8" fill="#0C2340" stroke="#1F6FEB" stroke-width="0.5"/>
+        <text x="75" y="64" text-anchor="middle" font-family="Sora,sans-serif" font-size="20">👩‍💻</text>
+        <text x="75" y="84" text-anchor="middle" font-family="Sora,sans-serif" font-size="11" fill="#58A6FF" font-weight="500">Developer</text>
+        <text x="75" y="96" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#484F58">git push</text>
+
+        <!-- Arrow -->
+        <line x1="130" y1="70" x2="160" y2="70" stroke="#3FB950" stroke-width="1.2" marker-end="url(#arrcig)"/>
+
+        <!-- CI Server -->
+        <rect x="160" y="30" width="130" height="80" rx="8" fill="#0D1F12" stroke="#238636" stroke-width="1"/>
+        <text x="225" y="54" text-anchor="middle" font-family="Sora,sans-serif" font-size="11" fill="#3FB950" font-weight="500">CI Server</text>
+        <text x="225" y="70" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#8B949E">1. Checkout code</text>
+        <text x="225" y="84" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#8B949E">2. Install deps</text>
+        <text x="225" y="98" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#8B949E">3. Build + Test</text>
+
+        <!-- Arrow to Pass -->
+        <line x1="290" y1="55" x2="320" y2="40" stroke="#3FB950" stroke-width="1.2" marker-end="url(#arrcig)"/>
+        <!-- Arrow to Fail -->
+        <line x1="290" y1="85" x2="320" y2="105" stroke="#FF7B72" stroke-width="1.2" marker-end="url(#arrcir)"/>
+
+        <!-- PASS box -->
+        <rect x="320" y="20" width="120" height="44" rx="8" fill="#0D1F12" stroke="#238636" stroke-width="0.5"/>
+        <text x="380" y="40" text-anchor="middle" font-family="Sora,sans-serif" font-size="12" fill="#3FB950" font-weight="500">✅ PASS</text>
+        <text x="380" y="56" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#484F58">merge allowed</text>
+
+        <!-- FAIL box -->
+        <rect x="320" y="84" width="120" height="44" rx="8" fill="#1C0A09" stroke="#8B2020" stroke-width="0.5"/>
+        <text x="380" y="104" text-anchor="middle" font-family="Sora,sans-serif" font-size="12" fill="#FF7B72" font-weight="500">❌ FAIL</text>
+        <text x="380" y="120" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#484F58">notify developer</text>
+
+        <!-- Arrow pass → next step -->
+        <line x1="440" y1="42" x2="480" y2="42" stroke="#3FB950" stroke-width="1.2" marker-end="url(#arrcig)"/>
+        <rect x="480" y="22" width="180" height="40" rx="8" fill="#0D1F12" stroke="#238636" stroke-width="0.5"/>
+        <text x="570" y="40" text-anchor="middle" font-family="Sora,sans-serif" font-size="11" fill="#3FB950" font-weight="500">→ CD Pipeline begins</text>
+        <text x="570" y="54" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#484F58">build Docker image</text>
+
+        <!-- Fix loop arrow label -->
+        <text x="380" y="148" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#FF7B72">developer fixes bug and pushes again</text>
+        <path d="M440 106 Q500 150 440 155 Q380 160 320 128" fill="none" stroke="#FF7B72" stroke-width="0.8" stroke-dasharray="4 3" marker-end="url(#arrcir)"/>
+      </svg>
+    </div>
+
+    <div class="dl">
+      <div class="di"><span class="dk" style="color:var(--green)">Frequent Commits</span><div class="dv">Developers push <b>small changes daily</b> to feature branches — no more weeks of isolated work. Merges become easy.</div></div>
+      <div class="di"><span class="dk" style="color:var(--blue)">Automated Build</span><div class="dv">Every commit triggers an <b>automatic build</b> — compile errors are caught immediately without anyone manually checking.</div></div>
+      <div class="di"><span class="dk" style="color:var(--amber)">Automated Tests</span><div class="dv">Unit tests and integration tests run <b>on every commit</b> — bugs are found within minutes, not after weeks of work.</div></div>
+      <div class="di"><span class="dk" style="color:var(--cyan)">Fast Feedback Loop</span><div class="dv">Developers know <b>within minutes</b> if their code broke something — the earlier a bug is caught, the cheaper it is to fix.</div></div>
+    </div>
+    <div class="box bg">✅ CI Goal: <b>"Always have a working, tested, deployable codebase."</b> No more code freeze. The main branch is always stable.</div>
+  </div>
+</div>
+
+<!-- ═══ SECTION 04 — Continuous Delivery ═══ -->
+<div class="nc">
+  <div class="nc-hdr"><span class="nc-num">04</span><div class="nc-dot" style="background:var(--blue)"></div><span class="nc-title" style="color:var(--blue)">Continuous Delivery — CD</span></div>
+  <div class="nc-body">
+    <div class="ts-badge">⏱ 8:18 – 15:26</div>
+    <p class="s"><b>Continuous Delivery</b> extends CI. After tests pass, <b>build automation tools automatically create a Docker image</b> and deploy it to a <b>staging/testing environment</b> — with zero manual steps. The code is always ready for production, but a human gives final approval.</p>
+
+    <!-- CD Pipeline SVG -->
+    <div class="diagram">
+      <svg width="100%" viewBox="0 0 680 200" role="img">
+        <title>Continuous Delivery pipeline</title>
+        <desc>Five stages from CI pass through Docker build, artifact registry, staging environment, human approval, to production</desc>
+        <defs>
+          <marker id="arrcd" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+            <path d="M2 1L8 5L2 9" fill="none" stroke="#58A6FF" stroke-width="1.5" stroke-linecap="round"/>
+          </marker>
+        </defs>
+        <!-- CI Pass badge -->
+        <rect x="10" y="70" width="90" height="60" rx="8" fill="#0D1F12" stroke="#238636" stroke-width="0.5"/>
+        <text x="55" y="94" text-anchor="middle" font-family="Sora,sans-serif" font-size="18">✅</text>
+        <text x="55" y="114" text-anchor="middle" font-family="Sora,sans-serif" font-size="10" fill="#3FB950" font-weight="500">CI Pass</text>
+        <text x="55" y="126" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#484F58">tests ok</text>
+        <line x1="100" y1="100" x2="116" y2="100" stroke="#58A6FF" stroke-width="1.2" marker-end="url(#arrcd)"/>
+
+        <!-- Docker Build -->
+        <rect x="116" y="70" width="100" height="60" rx="8" fill="#0C2340" stroke="#1F6FEB" stroke-width="0.5"/>
+        <text x="166" y="94" text-anchor="middle" font-family="Sora,sans-serif" font-size="18">🐳</text>
+        <text x="166" y="114" text-anchor="middle" font-family="Sora,sans-serif" font-size="10" fill="#58A6FF" font-weight="500">Docker Build</text>
+        <text x="166" y="126" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#484F58">create image</text>
+        <line x1="216" y1="100" x2="232" y2="100" stroke="#58A6FF" stroke-width="1.2" marker-end="url(#arrcd)"/>
+
+        <!-- Registry -->
+        <rect x="232" y="70" width="100" height="60" rx="8" fill="#1A1040" stroke="#6E40C9" stroke-width="0.5"/>
+        <text x="282" y="94" text-anchor="middle" font-family="Sora,sans-serif" font-size="18">📤</text>
+        <text x="282" y="114" text-anchor="middle" font-family="Sora,sans-serif" font-size="10" fill="#BC8CFF" font-weight="500">Push Registry</text>
+        <text x="282" y="126" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#484F58">DockerHub/ECR</text>
+        <line x1="332" y1="100" x2="348" y2="100" stroke="#58A6FF" stroke-width="1.2" marker-end="url(#arrcd)"/>
+
+        <!-- Staging -->
+        <rect x="348" y="70" width="100" height="60" rx="8" fill="#0A1F1F" stroke="#1B6F6F" stroke-width="0.5"/>
+        <text x="398" y="94" text-anchor="middle" font-family="Sora,sans-serif" font-size="18">🚧</text>
+        <text x="398" y="114" text-anchor="middle" font-family="Sora,sans-serif" font-size="10" fill="#39D5D5" font-weight="500">Staging Deploy</text>
+        <text x="398" y="126" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#484F58">E2E tests run</text>
+        <line x1="448" y1="100" x2="464" y2="100" stroke="#58A6FF" stroke-width="1.2" marker-end="url(#arrcd)"/>
+
+        <!-- Human Approval -->
+        <rect x="464" y="60" width="100" height="80" rx="8" fill="#1C1700" stroke="#9E6A03" stroke-width="1"/>
+        <text x="514" y="90" text-anchor="middle" font-family="Sora,sans-serif" font-size="18">🧑‍💼</text>
+        <text x="514" y="110" text-anchor="middle" font-family="Sora,sans-serif" font-size="10" fill="#E3B341" font-weight="500">Human</text>
+        <text x="514" y="123" text-anchor="middle" font-family="Sora,sans-serif" font-size="10" fill="#E3B341" font-weight="500">Approval</text>
+        <text x="514" y="136" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#484F58">review &amp; approve</text>
+        <line x1="564" y1="100" x2="580" y2="100" stroke="#3FB950" stroke-width="1.2" marker-end="url(#arrcd)"/>
+
+        <!-- Production -->
+        <rect x="580" y="60" width="90" height="80" rx="8" fill="#0D1F12" stroke="#3FB950" stroke-width="1.5"/>
+        <text x="625" y="90" text-anchor="middle" font-family="Sora,sans-serif" font-size="22">🚀</text>
+        <text x="625" y="114" text-anchor="middle" font-family="Sora,sans-serif" font-size="11" fill="#3FB950" font-weight="600">Production</text>
+        <text x="625" y="128" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#238636">go live!</text>
+
+        <!-- Approval label -->
+        <text x="514" y="28" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#E3B341">↑ Only manual step</text>
+        <text x="514" y="42" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#484F58">everything else is automated</text>
+      </svg>
+    </div>
+
+    <div class="dl">
+      <div class="di"><span class="dk" style="color:var(--blue)">Docker Image Build</span><div class="dv">After CI passes, a <b>Docker image is automatically built</b> — versioned and pushed to an artifact registry (DockerHub, ECR, etc.).</div></div>
+      <div class="di"><span class="dk" style="color:var(--green)">Deploy to Staging</span><div class="dv">The image is automatically deployed to a <b>staging environment identical to production</b>. End-to-end functionality is validated here.</div></div>
+      <div class="di"><span class="dk" style="color:var(--amber)">End-to-End Testing</span><div class="dv">Full system tests run in staging — not just unit tests. <b>Real user flows</b> are tested before production release.</div></div>
+      <div class="di"><span class="dk" style="color:var(--purple)">Manual Approval Gate</span><div class="dv">A human reviews the staging deployment and clicks <b>approve or reject</b>. This is the only manual step in the pipeline.</div></div>
+    </div>
+    <div class="box bb">💡 Continuous Delivery = <b>"Always ready to release."</b> The code can go to production at any time — the human decides <em>when</em>, not <em>how</em>.</div>
+  </div>
+</div>
+
+<!-- ═══ SECTION 05 — Continuous Deployment ═══ -->
+<div class="nc">
+  <div class="nc-hdr"><span class="nc-num">05</span><div class="nc-dot" style="background:var(--purple)"></div><span class="nc-title" style="color:var(--purple)">Continuous Deployment vs Continuous Delivery</span></div>
+  <div class="nc-body">
+    <div class="ts-badge">⏱ 15:26 – 17:12</div>
+    <p class="s">Nana clearly differentiates these two — they are commonly confused. The key difference is <b>whether a human approves the production release</b> or not.</p>
+
+    <!-- Delivery vs Deployment SVG -->
+    <div class="diagram">
+      <svg width="100%" viewBox="0 0 680 180" role="img">
+        <title>Continuous Delivery vs Continuous Deployment comparison</title>
+        <desc>Two rows: top shows Continuous Delivery with a human approval gate before production, bottom shows Continuous Deployment going directly to production automatically</desc>
+        <defs>
+          <marker id="arrb" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+            <path d="M2 1L8 5L2 9" fill="none" stroke="#58A6FF" stroke-width="1.5" stroke-linecap="round"/>
+          </marker>
+          <marker id="arrp" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+            <path d="M2 1L8 5L2 9" fill="none" stroke="#BC8CFF" stroke-width="1.5" stroke-linecap="round"/>
+          </marker>
+        </defs>
+
+        <!-- DELIVERY row label -->
+        <text x="10" y="22" font-family="JetBrains Mono,monospace" font-size="9" fill="#58A6FF">CONTINUOUS DELIVERY</text>
+
+        <rect x="10" y="30" width="120" height="40" rx="6" fill="#0D1F12" stroke="#238636" stroke-width="0.5"/>
+        <text x="70" y="54" text-anchor="middle" font-family="Sora,sans-serif" font-size="11" fill="#3FB950">✅ Tests pass</text>
+        <line x1="130" y1="50" x2="148" y2="50" stroke="#58A6FF" stroke-width="1" marker-end="url(#arrb)"/>
+
+        <rect x="148" y="30" width="120" height="40" rx="6" fill="#0A1F1F" stroke="#1B6F6F" stroke-width="0.5"/>
+        <text x="208" y="54" text-anchor="middle" font-family="Sora,sans-serif" font-size="11" fill="#39D5D5">🚧 Staging</text>
+        <line x1="268" y1="50" x2="286" y2="50" stroke="#58A6FF" stroke-width="1" marker-end="url(#arrb)"/>
+
+        <rect x="286" y="22" width="130" height="56" rx="6" fill="#1C1700" stroke="#E3B341" stroke-width="1"/>
+        <text x="351" y="46" text-anchor="middle" font-family="Sora,sans-serif" font-size="11" fill="#E3B341" font-weight="500">🧑‍💼 Human</text>
+        <text x="351" y="62" text-anchor="middle" font-family="Sora,sans-serif" font-size="11" fill="#E3B341" font-weight="500">Approval</text>
+        <text x="351" y="72" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="8" fill="#9E6A03">manual click</text>
+        <line x1="416" y1="50" x2="434" y2="50" stroke="#58A6FF" stroke-width="1" marker-end="url(#arrb)"/>
+
+        <rect x="434" y="30" width="120" height="40" rx="6" fill="#0D1F12" stroke="#3FB950" stroke-width="1"/>
+        <text x="494" y="54" text-anchor="middle" font-family="Sora,sans-serif" font-size="11" fill="#3FB950" font-weight="500">🚀 Production</text>
+
+        <!-- DEPLOYMENT row label -->
+        <text x="10" y="112" font-family="JetBrains Mono,monospace" font-size="9" fill="#BC8CFF">CONTINUOUS DEPLOYMENT</text>
+
+        <rect x="10" y="120" width="120" height="40" rx="6" fill="#0D1F12" stroke="#238636" stroke-width="0.5"/>
+        <text x="70" y="144" text-anchor="middle" font-family="Sora,sans-serif" font-size="11" fill="#3FB950">✅ Tests pass</text>
+        <line x1="130" y1="140" x2="148" y2="140" stroke="#BC8CFF" stroke-width="1" marker-end="url(#arrp)"/>
+
+        <rect x="148" y="120" width="120" height="40" rx="6" fill="#0A1F1F" stroke="#1B6F6F" stroke-width="0.5"/>
+        <text x="208" y="144" text-anchor="middle" font-family="Sora,sans-serif" font-size="11" fill="#39D5D5">🚧 Staging</text>
+        <line x1="268" y1="140" x2="434" y2="140" stroke="#BC8CFF" stroke-width="1.5" marker-end="url(#arrp)" stroke-dasharray="6 3"/>
+
+        <text x="351" y="134" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#BC8CFF">fully automatic</text>
+        <text x="351" y="158" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#484F58">no human needed</text>
+
+        <rect x="434" y="120" width="120" height="40" rx="6" fill="#1A1040" stroke="#BC8CFF" stroke-width="1.5"/>
+        <text x="494" y="144" text-anchor="middle" font-family="Sora,sans-serif" font-size="11" fill="#BC8CFF" font-weight="500">🚀 Production</text>
+      </svg>
+    </div>
+
+    <table class="tbl">
+      <tr><th></th><th>Continuous Delivery</th><th>Continuous Deployment</th></tr>
+      <tr><td><code>Staging</code></td><td>Auto deploy ✅</td><td>Auto deploy ✅</td></tr>
+      <tr><td><code>Production</code></td><td>Manual approval required</td><td>Fully automatic</td></tr>
+      <tr><td><code>Human role</code></td><td>Reviews and approves release</td><td>Only writes code</td></tr>
+      <tr><td><code>Who uses it?</code></td><td>Most companies</td><td>Netflix, Amazon, Google</td></tr>
+      <tr><td><code>Risk</code></td><td>Lower (human safety net)</td><td>Higher (tests must be excellent)</td></tr>
+    </table>
+    <div class="box bp">📌 Most teams start with <b>Continuous Delivery</b> — manual approval gives a safety net. As test confidence grows, they move toward <b>Continuous Deployment</b>.</div>
+  </div>
+</div>
+
+<!-- ═══ SECTION 06 — Deployment Strategies ═══ -->
+<div class="nc">
+  <div class="nc-hdr"><span class="nc-num">06</span><div class="nc-dot" style="background:var(--amber)"></div><span class="nc-title" style="color:var(--amber)">Deployment Strategies</span></div>
+  <div class="nc-body">
+    <div class="ts-badge">⏱ 17:12 – 21:07</div>
+    <p class="s">Even with CI/CD, deploying to production carries risk. Nana covers two key strategies to <b>reduce risk during production releases</b> — Canary and Blue-Green deployments.</p>
+
+    <!-- Canary SVG -->
+    <h3><span class="bar" style="background:var(--purple)"></span>🐦 Canary Deployment</h3>
+    <p class="s">New version is deployed to a <b>small percentage of users first</b>. Monitor for errors. If everything is good, gradually roll out to more users until 100%.</p>
+
+    <div class="diagram">
+      <svg width="100%" viewBox="0 0 680 200" role="img">
+        <title>Canary deployment rollout stages</title>
+        <desc>Four stages of canary rollout: 5%, 25%, 50%, and 100% of users receiving the new version, with monitoring between each stage</desc>
+        <defs>
+          <marker id="arrcan" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+            <path d="M2 1L8 5L2 9" fill="none" stroke="#BC8CFF" stroke-width="1.5" stroke-linecap="round"/>
+          </marker>
+        </defs>
+        <!-- Stage 1: 5% -->
+        <rect x="10" y="60" width="130" height="80" rx="8" fill="#1A1040" stroke="#6E40C9" stroke-width="0.5"/>
+        <text x="75" y="88" text-anchor="middle" font-family="Sora,sans-serif" font-size="24" fill="#BC8CFF" font-weight="600">5%</text>
+        <text x="75" y="108" text-anchor="middle" font-family="Sora,sans-serif" font-size="11" fill="#BC8CFF">New version</text>
+        <text x="75" y="124" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#6E40C9">monitor errors</text>
+
+        <text x="152" y="94" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#484F58">✅ ok</text>
+        <line x1="140" y1="100" x2="162" y2="100" stroke="#BC8CFF" stroke-width="1" marker-end="url(#arrcan)"/>
+
+        <!-- Stage 2: 25% -->
+        <rect x="162" y="50" width="130" height="100" rx="8" fill="#1A1040" stroke="#6E40C9" stroke-width="0.8"/>
+        <text x="227" y="84" text-anchor="middle" font-family="Sora,sans-serif" font-size="28" fill="#BC8CFF" font-weight="600">25%</text>
+        <text x="227" y="108" text-anchor="middle" font-family="Sora,sans-serif" font-size="11" fill="#BC8CFF">More users</text>
+        <text x="227" y="124" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#6E40C9">monitor again</text>
+
+        <text x="304" y="94" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#484F58">✅ ok</text>
+        <line x1="292" y1="100" x2="314" y2="100" stroke="#BC8CFF" stroke-width="1" marker-end="url(#arrcan)"/>
+
+        <!-- Stage 3: 50% -->
+        <rect x="314" y="40" width="130" height="120" rx="8" fill="#1A1040" stroke="#6E40C9" stroke-width="1"/>
+        <text x="379" y="82" text-anchor="middle" font-family="Sora,sans-serif" font-size="32" fill="#BC8CFF" font-weight="600">50%</text>
+        <text x="379" y="112" text-anchor="middle" font-family="Sora,sans-serif" font-size="11" fill="#BC8CFF">Half users</text>
+        <text x="379" y="128" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#6E40C9">confidence high</text>
+
+        <text x="456" y="94" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#484F58">✅ ok</text>
+        <line x1="444" y1="100" x2="466" y2="100" stroke="#3FB950" stroke-width="1.5" marker-end="url(#arrcan)"/>
+
+        <!-- Stage 4: 100% -->
+        <rect x="466" y="30" width="200" height="140" rx="8" fill="#0D1F12" stroke="#3FB950" stroke-width="1.5"/>
+        <text x="566" y="78" text-anchor="middle" font-family="Sora,sans-serif" font-size="38" fill="#3FB950" font-weight="600">100%</text>
+        <text x="566" y="112" text-anchor="middle" font-family="Sora,sans-serif" font-size="12" fill="#3FB950" font-weight="500">Full rollout!</text>
+        <text x="566" y="130" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#238636">all users on new version</text>
+        <text x="566" y="156" text-anchor="middle" font-family="Sora,sans-serif" font-size="16">🎉</text>
+      </svg>
+    </div>
+    <div class="box bp">🐦 <b>Why "Canary"?</b> Coal miners used to send a canary bird into mines to detect toxic gas. If the canary died, miners stayed out. Same logic here — if the 5% deployment breaks, <b>only 5% of users are affected</b>. Roll back immediately and fix.</div>
+
+    <!-- Blue-Green SVG -->
+    <h3 style="margin-top:20px"><span class="bar" style="background:var(--blue)"></span>🔵🟢 Blue-Green Deployment</h3>
+    <p class="s">Maintain <b>two identical production environments</b> — Blue (current live version) and Green (new version). Switch all traffic instantly. If something breaks, switch back to Blue in seconds.</p>
+
+    <div class="diagram">
+      <svg width="100%" viewBox="0 0 680 230" role="img">
+        <title>Blue-Green deployment strategy showing traffic switch</title>
+        <desc>Two environments side by side: Blue with current live traffic and Green with new version ready. An instant traffic switch happens, with Blue becoming standby for rollback.</desc>
+        <defs>
+          <marker id="arrbl" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+            <path d="M2 1L8 5L2 9" fill="none" stroke="#58A6FF" stroke-width="1.5" stroke-linecap="round"/>
+          </marker>
+          <marker id="arrgr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+            <path d="M2 1L8 5L2 9" fill="none" stroke="#3FB950" stroke-width="1.5" stroke-linecap="round"/>
+          </marker>
+          <marker id="arrgr2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+            <path d="M2 1L8 5L2 9" fill="none" stroke="#484F58" stroke-width="1.5" stroke-linecap="round"/>
+          </marker>
+        </defs>
+
+        <!-- BEFORE label -->
+        <text x="10" y="20" font-family="JetBrains Mono,monospace" font-size="9" fill="#8B949E">BEFORE SWITCH — Blue is live</text>
+
+        <!-- Users icon -->
+        <text x="24" y="68" text-anchor="middle" font-family="Sora,sans-serif" font-size="22">👥</text>
+        <text x="24" y="82" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="8" fill="#8B949E">Users</text>
+
+        <!-- 100% traffic arrow to Blue -->
+        <line x1="44" y1="62" x2="94" y2="62" stroke="#58A6FF" stroke-width="2" marker-end="url(#arrbl)"/>
+        <text x="70" y="56" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="8" fill="#58A6FF">100%</text>
+
+        <!-- Blue env -->
+        <rect x="94" y="30" width="200" height="80" rx="8" fill="#0C2340" stroke="#1F6FEB" stroke-width="1.5"/>
+        <text x="194" y="58" text-anchor="middle" font-family="Sora,sans-serif" font-size="14" fill="#58A6FF" font-weight="600">🔵 Blue Environment</text>
+        <text x="194" y="76" text-anchor="middle" font-family="Sora,sans-serif" font-size="11" fill="#8B949E">v1.0 — Current live version</text>
+        <text x="194" y="92" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#1F6FEB">LIVE — receiving all traffic</text>
+
+        <!-- Green env — idle -->
+        <rect x="390" y="30" width="200" height="80" rx="8" fill="#21262D" stroke="#30363D" stroke-width="0.5"/>
+        <text x="490" y="58" text-anchor="middle" font-family="Sora,sans-serif" font-size="14" fill="#8B949E" font-weight="600">🟢 Green Environment</text>
+        <text x="490" y="76" text-anchor="middle" font-family="Sora,sans-serif" font-size="11" fill="#484F58">v2.0 — New version ready</text>
+        <text x="490" y="92" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#484F58">IDLE — tested, waiting</text>
+
+        <!-- Switch arrow -->
+        <text x="340" y="74" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#E3B341">⚡ SWITCH</text>
+        <path d="M294 55 Q340 30 390 55" fill="none" stroke="#E3B341" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#arrgr)"/>
+        <path d="M390 80 Q340 106 294 80" fill="none" stroke="#484F58" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#arrgr2)"/>
+
+        <!-- AFTER label -->
+        <text x="10" y="140" font-family="JetBrains Mono,monospace" font-size="9" fill="#8B949E">AFTER SWITCH — Green is live</text>
+
+        <!-- Blue env — standby -->
+        <rect x="94" y="150" width="200" height="70" rx="8" fill="#21262D" stroke="#30363D" stroke-width="0.5"/>
+        <text x="194" y="174" text-anchor="middle" font-family="Sora,sans-serif" font-size="13" fill="#484F58" font-weight="600">🔵 Blue Environment</text>
+        <text x="194" y="192" text-anchor="middle" font-family="Sora,sans-serif" font-size="11" fill="#484F58">v1.0 — Standby</text>
+        <text x="194" y="208" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#484F58">instant rollback available</text>
+
+        <!-- Green env — live -->
+        <rect x="390" y="144" width="200" height="82" rx="8" fill="#0D1F12" stroke="#3FB950" stroke-width="1.5"/>
+        <text x="490" y="172" text-anchor="middle" font-family="Sora,sans-serif" font-size="14" fill="#3FB950" font-weight="600">🟢 Green Environment</text>
+        <text x="490" y="192" text-anchor="middle" font-family="Sora,sans-serif" font-size="11" fill="#3FB950">v2.0 — Now live!</text>
+        <text x="490" y="210" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#238636">LIVE — receiving all traffic</text>
+
+        <!-- 100% traffic arrow to Green -->
+        <line x1="44" y1="178" x2="388" y2="185" stroke="#3FB950" stroke-width="2" marker-end="url(#arrgr)"/>
+        <text x="200" y="173" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="8" fill="#3FB950">100% traffic</text>
+
+        <!-- Users icon -->
+        <text x="24" y="184" text-anchor="middle" font-family="Sora,sans-serif" font-size="22">👥</text>
+        <text x="24" y="200" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="8" fill="#8B949E">Users</text>
+      </svg>
+    </div>
+    <div class="box bg">✅ Blue-Green's biggest advantage: <b>Zero downtime + Instant rollback.</b> If Green has problems, flip the traffic switch back to Blue in seconds. Fix Green and try again.</div>
+
+    <h3 style="margin-top:16px"><span class="bar" style="background:var(--amber)"></span>Canary vs Blue-Green — Comparison</h3>
+    <table class="tbl">
+      <tr><th></th><th>🐦 Canary</th><th>🔵🟢 Blue-Green</th></tr>
+      <tr><td><code>Risk exposure</code></td><td>Only small % of users affected</td><td>100% switch — more exposure</td></tr>
+      <tr><td><code>Rollback</code></td><td>Reduce traffic % back to 0</td><td>Instant flip back to Blue</td></tr>
+      <tr><td><code>Infrastructure cost</code></td><td>Less — shared infra</td><td>Double — two full environments</td></tr>
+      <tr><td><code>Rollout speed</code></td><td>Slow (gradual stages)</td><td>Instant switch</td></tr>
+      <tr><td><code>Best for</code></td><td>Testing with real users safely</td><td>Zero-downtime critical releases</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ═══ SECTION 07 — Cheatsheet ═══ -->
+<div class="nc">
+  <div class="nc-hdr"><span class="nc-num">07</span><div class="nc-dot" style="background:var(--cyan)"></div><span class="nc-title" style="color:var(--cyan)">Quick Cheatsheet</span></div>
+  <div class="nc-body">
+    <div class="cheat-grid">
+      <div class="ci-item"><span class="ci-cmd">CI</span><span class="ci-desc">build + test on every commit</span></div>
+      <div class="ci-item"><span class="ci-cmd">CD Delivery</span><span class="ci-desc">auto deploy → manual approval</span></div>
+      <div class="ci-item"><span class="ci-cmd">CD Deployment</span><span class="ci-desc">fully auto → production</span></div>
+      <div class="ci-item"><span class="ci-cmd">Code Freeze</span><span class="ci-desc">old pain — CI eliminates this</span></div>
+      <div class="ci-item"><span class="ci-cmd">Merge Conflicts</span><span class="ci-desc">avoided by frequent commits</span></div>
+      <div class="ci-item"><span class="ci-cmd">Artifact</span><span class="ci-desc">build output — docker image</span></div>
+      <div class="ci-item"><span class="ci-cmd">Staging</span><span class="ci-desc">prod-like test environment</span></div>
+      <div class="ci-item"><span class="ci-cmd">Approval Gate</span><span class="ci-desc">human review before prod</span></div>
+      <div class="ci-item"><span class="ci-cmd">Canary 🐦</span><span class="ci-desc">gradual % rollout to users</span></div>
+      <div class="ci-item"><span class="ci-cmd">Blue-Green 🔵🟢</span><span class="ci-desc">2 envs, instant traffic switch</span></div>
+      <div class="ci-item"><span class="ci-cmd">Rollback</span><span class="ci-desc">revert to previous version</span></div>
+      <div class="ci-item"><span class="ci-cmd">Fail Fast</span><span class="ci-desc">stop pipeline on any failure</span></div>
+    </div>
+    <div class="tags">
+      <span class="tag tb">#CICD</span>
+      <span class="tag tg">#DevOps</span>
+      <span class="tag ta">#30DaysOfDevOps</span>
+      <span class="tag tp">#Pipeline</span>
+      <span class="tag tc">#Automation</span>
+      <span class="tag tb">#CanaryDeployment</span>
+      <span class="tag tg">#BlueGreen</span>
+      <span class="tag ta">#TechWorldWithNana</span>
+    </div>
+  </div>
+</div>
+
+<div class="footer">30 Days of DevOps &nbsp;·&nbsp; <span>Day 07</span> &nbsp;·&nbsp; CI/CD Pipeline Fundamentals ✓</div>
+
+</div>
+</body>
+</html>
